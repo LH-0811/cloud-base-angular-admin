@@ -31,15 +31,15 @@ export class UserLoginComponent implements OnDestroy {
     private cdr: ChangeDetectorRef
   ) {
     this.form = fb.group({
-      userName: [null, [Validators.required, Validators.pattern(/^(admin|user)$/)]],
-      password: [null, [Validators.required, Validators.pattern(/^(ng\-alain\.com)$/)]],
+      userName: [null, [Validators.required]],
+      password: [null, [Validators.required]],
       mobile: [null, [Validators.required, Validators.pattern(/^1\d{10}$/)]],
       captcha: [null, [Validators.required]],
       remember: [true]
     });
   }
 
-  // #region fields
+  // region fields
 
   get userName(): AbstractControl {
     return this.form.controls.userName;
@@ -58,12 +58,12 @@ export class UserLoginComponent implements OnDestroy {
   type = 0;
   loading = false;
 
-  // #region get captcha
+  // region get captcha
 
   count = 0;
   interval$: any;
 
-  // #endregion
+  // endregion
 
   switch({ index }: NzTabChangeEvent): void {
     this.type = index!;
@@ -84,7 +84,7 @@ export class UserLoginComponent implements OnDestroy {
     }, 1000);
   }
 
-  // #endregion
+  // endregion
 
   submit(): void {
     this.error = '';
@@ -111,29 +111,16 @@ export class UserLoginComponent implements OnDestroy {
     this.loading = true;
     this.cdr.detectChanges();
     this.http
-      .post('/login/account?_allow_anonymous=true', {
+      .post('/authorize-center-server/security/login/username_password?_allow_anonymous=true', {
         type: this.type,
-        userName: this.userName.value,
+        username: this.userName.value,
         password: this.password.value
       })
-      .pipe(
-        finalize(() => {
-          this.loading = true;
-          this.cdr.detectChanges();
-        })
-      )
       .subscribe(res => {
-        if (res.msg !== 'ok') {
-          this.error = res.msg;
-          this.cdr.detectChanges();
-          return;
-        }
         // 清空路由复用信息
         this.reuseTabService.clear();
         // 设置用户Token信息
-        // TODO: Mock expired value
-        res.user.expired = +new Date() + 1000 * 60 * 5;
-        this.tokenService.set(res.user);
+        this.tokenService.set(res.data);
         // 重新获取 StartupService 内容，我们始终认为应用信息一般都会受当前用户授权范围而影响
         this.startupSrv.load().subscribe(() => {
           let url = this.tokenService.referrer!.url || '/';
@@ -142,10 +129,17 @@ export class UserLoginComponent implements OnDestroy {
           }
           this.router.navigateByUrl(url);
         });
+      },error1 => {
+        console.log("请求接口执行error:"+error1)
+      },()=>{
+        this.loading = false;
+        console.log("请求接口执行完成:"+this.loading)
       });
+
+
   }
 
-  // #region social
+  // region social
 
   open(type: string, openType: SocialOpenType = 'href'): void {
     let url = ``;
@@ -186,7 +180,7 @@ export class UserLoginComponent implements OnDestroy {
     }
   }
 
-  // #endregion
+  // endregion
 
   ngOnDestroy(): void {
     if (this.interval$) {
