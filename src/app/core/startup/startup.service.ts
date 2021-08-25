@@ -33,12 +33,12 @@ export class StartupService {
 
   private viaHttp(): Observable<void> {
 
-    return  this.httpClient.get('/user-center-server/sys_user/menu_tree/get').pipe(
+    return  this.httpClient.get('/user-center-server/sys_user/current_user_info').pipe(
       catchError((res: NzSafeAny) => {
         return of({});
       }),
       map((res: NzSafeAny) => {
-        console.log("菜单信息:"+res)
+        console.log("用户信息:"+res)
         var token = this.tokenService.get();
         // Application information: including site name, description, year
         let app = {
@@ -46,14 +46,16 @@ export class StartupService {
           description: 'Ng-zorro admin panel front-end framework'
         };
         this.settingService.setApp(app);
+        var userInfo = res.data.userInfo;
         let user = {
-          name: 'Admin',
+          name: userInfo.nickName,
           avatar: './assets/tmp/img/avatar.jpg',
-          email: 'cipchk@qq.com'
+          email: userInfo.email,
+          phone: userInfo.phone
         };
         this.settingService.setUser(user);
         this.aclService.setFull(true);
-        let menu = res.data;
+        let menu = res.data.menuList;
         this.menuService.add(menu);
         this.titleService.suffix = app.name;
       })
