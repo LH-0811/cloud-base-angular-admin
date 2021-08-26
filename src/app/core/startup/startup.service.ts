@@ -33,13 +33,18 @@ export class StartupService {
 
   private viaHttp(): Observable<void> {
 
+    var token = this.tokenService.get();
+    if (JSON.stringify(token) == '{}'){
+      return of();
+    }
+
     return  this.httpClient.get('/user-center-server/sys_user/current_user_info').pipe(
       catchError((res: NzSafeAny) => {
         return of({});
       }),
       map((res: NzSafeAny) => {
         console.log("用户信息:"+res)
-        var token = this.tokenService.get();
+        // var token = this.tokenService.get();
         // Application information: including site name, description, year
         let app = {
           name: 'Alain',
