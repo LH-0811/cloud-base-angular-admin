@@ -21,6 +21,9 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzTreeModule } from 'ng-zorro-antd/tree';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzCascaderModule } from 'ng-zorro-antd/cascader';
+
 
 export const SHARED_ZORRO_MODULES = [
   NzFormModule,
@@ -45,5 +48,7 @@ export const SHARED_ZORRO_MODULES = [
   NzCheckboxModule,
   NzSpinModule,
   NzTreeModule,
-  NzDatePickerModule
+  NzDatePickerModule,
+  NzSwitchModule,
+  NzCascaderModule
 ];
