@@ -74,10 +74,15 @@
         </div>
         <div nz-row style="margin-bottom: 4px;">
           <div nz-col [nzSpan]="24" style="text-align: left">
-            <button nz-button [nzType]="'primary'" (click)="showCreateUserModal()">新增</button>
+            <button nz-button [nzType]="'primary'" (click)="userCreateShowModal()">新增</button>
 
             <button [disabled]="selectUserInfo == null" nz-button [nzType]="'default'">修改</button>
-            <button [disabled]="selectUserInfo == null" nz-button [nzType]="'default'">重置密码</button>
+            <button nz-button [nzType]="'default'" [disabled]="selectUserInfo == null"
+                    nz-popconfirm
+                    nzPopconfirmTitle="确定要重置密码吗?"
+                    nzPopconfirmPlacement="top"
+                    (nzOnConfirm)="confirmResetPwd()"
+            >重置密码</button>
             <button [disabled]="selectUserInfo == null" nz-button [nzType]="'default'">分配角色</button>
             <button [disabled]="selectUserInfo == null" nz-button [nzType]="'dashed'" nzDanger>删除</button>
           </div>
@@ -133,54 +138,58 @@
 
 <!-- 新增用户 -->
 <nz-modal
-  [(nzVisible)]="showUserCreateModal"
+  [(nzVisible)]="userCreateModalShowFlag"
   nzTitle="新增用户"
   [nzContent]="userCreateContent"
   [nzFooter]="userCreateFooter"
-  (nzOnCancel)="handleCancelSaveUser()">
+  (nzOnCancel)="userCreateHandleCancel()">
 
   <ng-template #userCreateContent>
     <form nz-form *ngIf="userCreateParam!=null">
 
       <nz-form-item>
-        <nz-form-label [nzSpan]="7" >用户名</nz-form-label>
-        <nz-form-control [nzSpan]="12" >
-          <input nz-input [(ngModel)]="userCreateParam.username" name="userCreateParam_username" placeholder="输入用户名(登录名)"/>
+        <nz-form-label [nzSpan]="7">用户名</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="userCreateParam.username" name="userCreateParam_username"
+                 placeholder="输入用户名(登录名)"/>
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
-        <nz-form-label [nzSpan]="7" >昵称</nz-form-label>
-        <nz-form-control [nzSpan]="12" >
+        <nz-form-label [nzSpan]="7">昵称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
           <input nz-input [(ngModel)]="userCreateParam.nickName" name="userCreateParam_nickName" placeholder="输入昵称"/>
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
-        <nz-form-label [nzSpan]="7" >所属部门</nz-form-label>
-        <nz-form-control [nzSpan]="12" >
-          <nz-cascader nzChangeOnSelect name="userCreateParam_deptId"  [nzOptions]="deptCascader"  (nzSelectionChange)="deptCascaderChanges($event)"></nz-cascader>
+        <nz-form-label [nzSpan]="7">所属部门</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <nz-cascader nzChangeOnSelect name="userCreateParam_deptId"
+                       [nzOptions]="deptCascader"
+                       [(ngModel)]="selectCascaderDept"
+                       (nzSelectionChange)="userCreateDeptCascaderChanges($event)"></nz-cascader>
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
-        <nz-form-label [nzSpan]="7" >手机号</nz-form-label>
-        <nz-form-control [nzSpan]="12" >
+        <nz-form-label [nzSpan]="7">手机号</nz-form-label>
+        <nz-form-control [nzSpan]="12">
           <input nz-input [(ngModel)]="userCreateParam.phone" name="userCreateParam_phone" placeholder="输入手机号"/>
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
-        <nz-form-label [nzSpan]="7" >邮箱</nz-form-label>
-        <nz-form-control [nzSpan]="12" >
+        <nz-form-label [nzSpan]="7">邮箱</nz-form-label>
+        <nz-form-control [nzSpan]="12">
           <input nz-input [(ngModel)]="userCreateParam.email" name="userCreateParam_email" placeholder="输入邮箱"/>
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
-        <nz-form-label [nzSpan]="7" >性别</nz-form-label>
-        <nz-form-control [nzSpan]="12" >
-          <nz-select name="userCreateParam_gender" [(ngModel)]="userCreateParam.gender"  nzPlaceHolder="性别">
+        <nz-form-label [nzSpan]="7">性别</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <nz-select name="userCreateParam_gender" [(ngModel)]="userCreateParam.gender" nzPlaceHolder="性别">
             <nz-option [nzValue]="2" nzLabel="保密"></nz-option>
             <nz-option [nzValue]="1" nzLabel="男"></nz-option>
             <nz-option [nzValue]="0" nzLabel="女"></nz-option>
@@ -189,20 +198,49 @@
       </nz-form-item>
 
       <nz-form-item>
-        <nz-form-label [nzSpan]="7" >状态</nz-form-label>
-        <nz-form-control [nzSpan]="12" >
-          <nz-select name="userCreateParam_activeFlag" [(ngModel)]="userCreateParam.activeFlag"  nzPlaceHolder="状态">
+        <nz-form-label [nzSpan]="7">状态</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <nz-select name="userCreateParam_activeFlag" [(ngModel)]="userCreateParam.activeFlag" nzPlaceHolder="状态">
             <nz-option [nzValue]="true" nzLabel="正常"></nz-option>
             <nz-option [nzValue]="false" nzLabel="禁用"></nz-option>
           </nz-select>
         </nz-form-control>
       </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">角色</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <nz-select nzMode="multiple" name="userCreateParam_roleIdList"
+                     [(ngModel)]="userCreateParam.roleIdList"
+                     nzPlaceHolder="选择角色">
+            <div *ngIf="roleList.length > 0">
+              <nz-option *ngFor="let role of roleList" [nzValue]="role['id']" [nzLabel]="role['name']"></nz-option>
+            </div>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">岗位</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <nz-select nzMode="multiple" name="userCreateParam_positionIdList"
+                     [(ngModel)]="userCreateParam.positionIdList"
+                     nzPlaceHolder="选择岗位">
+            <div *ngIf="positionList.length > 0">
+              <nz-option *ngFor="let position of positionList" [nzValue]="position['id']"
+                         [nzLabel]="position['name']"></nz-option>
+            </div>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+
     </form>
   </ng-template>
 
   <ng-template #userCreateFooter>
-    <button nz-button nzType="default" (click)="handleCancelSaveUser()">取消</button>
-    <button nz-button nzType="primary" (click)="handleSaveUser()" [nzLoading]="userCreateLoading">保存</button>
+    <button nz-button nzType="default" (click)="userCreateHandleCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="userCreateHandleSave()" [nzLoading]="userCreateLoading">保存</button>
   </ng-template>
 </nz-modal>
 

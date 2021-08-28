@@ -98,7 +98,8 @@ export class DefaultInterceptor implements HttpInterceptor {
             return throwError({});
           }else {
             if (body && body.status != 0) {
-              this.notification.error(`请求错误`, `${body.msg}`);
+              let data = (body.data == null || body.data == undefined) ? '': body.data
+              this.notification.error(`请求错误`, `${body.msg}:${data}`);
               return throwError({});
             } else {
               // 忽略 Blob 文件体

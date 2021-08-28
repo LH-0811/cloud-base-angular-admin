@@ -76,6 +76,7 @@ export class SystemUsersComponent implements OnInit {
 
   //////////////////////// 公用数据
   deptCascader: [] = []; // 部门级联数据
+  selectCascaderDept:[] = []; // 选择的部门数据
 
   positionList: [] = []; // 岗位数据
 
@@ -89,18 +90,30 @@ export class SystemUsersComponent implements OnInit {
       },
       null,
       () => {
-        console.log('deptTree:' + this.deptTree);
       })
   }
 
   // 获取岗位列表
   getPositionList() {
 
+    this.http.get("/user-center-server/sys_position/query/all").subscribe(
+      res => {
+        this.positionList = res.data;
+      },
+      null,
+      () => {
+      })
   }
 
   // 获取角色列表
   getRoleList() {
-
+    this.http.get("/user-center-server/sys_role/query/all_list").subscribe(
+      res => {
+        this.roleList = res.data;
+      },
+      null,
+      () => {
+      })
   }
 
 
@@ -207,35 +220,46 @@ export class SystemUsersComponent implements OnInit {
 
   /////////////////////////// 新增用户数据
   userCreateParam: UserCreateParam | null = null; // 保存用户参数
-
-  showUserCreateModal = false; // 是否显示用户创建模态框
+  userCreateModalShowFlag = false; // 是否显示用户创建模态框
   userCreateLoading = false; // 是否正在保存用户信息
   // 显示模态框方法
-  showCreateUserModal(): void {
+
+  userCreateShowModal(): void {
     // 打开创建视图之前先初始化一个保存参数实体类
-    this.userCreateParam = new UserCreateParam();
+    if (this.userCreateParam == null) {
+      this.userCreateParam = new UserCreateParam();
+      this.selectCascaderDept = [];
+    }
     // 打开视图
-    this.showUserCreateModal = true;
+    this.userCreateModalShowFlag = true;
   }
 
   // 执行保存方法
-  handleSaveUser(): void {
+  userCreateHandleSave(): void {
     this.userCreateLoading = true;
     console.log(this.userCreateParam)
-    setTimeout(() => {
-      this.showUserCreateModal = false;
-      this.userCreateLoading = false;
-    }, 1000);
+    this.http.post("/user-center-server/sys_user/create",this.userCreateParam).subscribe(
+      res=>{
+        this.notificationService.success("系统提示","用户创建成功");
+        this.userCreateParam = null;
+        this.searchUserList();
+      },
+      error => {},
+      ()=>{
+        this.userCreateLoading = false;
+        this.userCreateModalShowFlag = false;
+      }
+    )
   }
 
   // 取消保存框
-  handleCancelSaveUser(): void {
+  userCreateHandleCancel(): void {
     // 取消视图显示
-    this.showUserCreateModal = false;
+    this.userCreateModalShowFlag = false;
   }
 
   // 选择部门
-  deptCascaderChanges($event: any) {
+  userCreateDeptCascaderChanges($event: any) {
     if (this.userCreateParam != null) {
       console.log($event)
       console.log($event.length)
@@ -245,6 +269,19 @@ export class SystemUsersComponent implements OnInit {
         this.userCreateParam.deptId = $event[$event.length - 1].id;
       }
     }
+  }
+
+  /////////////////////////// 重置用户密码
+  confirmResetPwd(){
+    if (this.selectUserInfo == null){
+      this.notificationService.error("系统提示","请先选择一个用户操作");
+      return;
+    }
+
+    this.http.post("/user-center-server/sys_user/reset/pwd",{userId:this.selectUserInfo.userId})
+      .subscribe(
+      res=>{this.notificationService.success("系统提示",res.msg)}
+    )
 
   }
 }
