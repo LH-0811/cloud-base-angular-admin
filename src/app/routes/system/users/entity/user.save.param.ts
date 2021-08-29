@@ -1,5 +1,9 @@
-export class UserCreateParam {
+export class UserSaveParam {
 
+  /**
+   * 用户id
+   */
+  userId:any;
 
   /**
    * 昵称
@@ -30,7 +34,7 @@ export class UserCreateParam {
   /**
    * 性别 0-保密 1-男 2-女
    */
-  gender: any;
+  gender: any = '0';
 
   /**
    * 岗位id列表

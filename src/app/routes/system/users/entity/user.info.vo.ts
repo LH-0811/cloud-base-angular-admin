@@ -46,6 +46,16 @@ export class UserInfoVo {
    */
   activeFlag: any;
 
+  /**
+   * 岗位id列表
+   */
+  positionIdList: any;
+
+  /**
+   * 岗位id列表
+   */
+  roleIdList: any;
+
 
   /**
    * 最后登录时间

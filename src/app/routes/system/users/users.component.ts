@@ -7,7 +7,7 @@ import {NzNotificationService} from "ng-zorro-antd/notification";
 import {NzFormatEmitEvent, NzTreeComponent, NzTreeNodeOptions} from 'ng-zorro-antd/tree';
 import {UserQueryParam} from "./entity/user.query.param";
 import {UserInfoVo} from "./entity/user.info.vo";
-import {UserCreateParam} from "./entity/user.create.param";
+import {UserSaveParam} from "./entity/user.save.param";
 
 
 @Component({
@@ -76,7 +76,7 @@ export class SystemUsersComponent implements OnInit {
 
   //////////////////////// 公用数据
   deptCascader: [] = []; // 部门级联数据
-  selectCascaderDept:[] = []; // 选择的部门数据
+  selectCascaderDept: [] = []; // 选择的部门数据
 
   positionList: [] = []; // 岗位数据
 
@@ -219,69 +219,143 @@ export class SystemUsersComponent implements OnInit {
   }
 
   /////////////////////////// 新增用户数据
-  userCreateParam: UserCreateParam | null = null; // 保存用户参数
-  userCreateModalShowFlag = false; // 是否显示用户创建模态框
-  userCreateLoading = false; // 是否正在保存用户信息
+  userSaveParam: UserSaveParam | null = null; // 保存用户参数
+  userSaveModalShowFlag = false; // 是否显示用户创建模态框
+  userSaveLoading = false; // 是否正在保存用户信息
   // 显示模态框方法
 
+  // 以创建用户的方式打开编辑用户信息模态框
   userCreateShowModal(): void {
     // 打开创建视图之前先初始化一个保存参数实体类
-    if (this.userCreateParam == null) {
-      this.userCreateParam = new UserCreateParam();
-      this.selectCascaderDept = [];
+    if (this.userSaveParam == null || (this.userSaveParam.userId != null || this.userSaveParam.userId != undefined)) {
+      this.userSaveParam = new UserSaveParam();
     }
+    // 生成选择的级联部门列表
+    this.getSelectCascaderListByCurrentUserDeptId();
     // 打开视图
-    this.userCreateModalShowFlag = true;
+    this.userSaveModalShowFlag = true;
+  }
+
+  // 以修改用户的方式打开编辑用户信息模态框
+  userUpdateShowModal(): void {
+    // 打开创建视图之前先初始化一个保存参数实体类
+    this.userSaveParam = JSON.parse(JSON.stringify(this.selectUserInfo));
+    // 生成选择的级联部门列表
+    this.getSelectCascaderListByCurrentUserDeptId();
+    // 打开视图
+    this.userSaveModalShowFlag = true;
   }
 
   // 执行保存方法
-  userCreateHandleSave(): void {
-    this.userCreateLoading = true;
-    console.log(this.userCreateParam)
-    this.http.post("/user-center-server/sys_user/create",this.userCreateParam).subscribe(
-      res=>{
-        this.notificationService.success("系统提示","用户创建成功");
-        this.userCreateParam = null;
+  userSaveHandleSave(): void {
+    this.userSaveLoading = true;
+    if (this.userSaveParam == null) {
+      this.notificationService.error('系统提示', '保存信息尚未初始化');
+      return;
+    }
+    let saveUrl = "/user-center-server/sys_user/create";
+    if (this.userSaveParam.userId != null || this.userSaveParam.userId != undefined) {
+      saveUrl = "/user-center-server/sys_user/update";
+    }
+    this.http.post(saveUrl, this.userSaveParam).subscribe(
+      res => {
+        this.notificationService.success("系统提示", res.msg);
+        this.userSaveParam = null;
         this.searchUserList();
       },
-      error => {},
-      ()=>{
-        this.userCreateLoading = false;
-        this.userCreateModalShowFlag = false;
+      error => {
+      },
+      () => {
+        this.userSaveLoading = false;
+        this.userSaveModalShowFlag = false;
       }
     )
   }
 
   // 取消保存框
-  userCreateHandleCancel(): void {
+  userSaveHandleCancel(): void {
     // 取消视图显示
-    this.userCreateModalShowFlag = false;
+    this.userSaveModalShowFlag = false;
   }
 
   // 选择部门
-  userCreateDeptCascaderChanges($event: any) {
-    if (this.userCreateParam != null) {
+  userSaveDeptCascaderChanges($event: any) {
+    if (this.userSaveParam != null) {
       console.log($event)
       console.log($event.length)
       if ($event.length == 0) {
-        this.userCreateParam.deptId = null;
+        this.userSaveParam.deptId = null;
       } else {
-        this.userCreateParam.deptId = $event[$event.length - 1].id;
+        this.userSaveParam.deptId = $event[$event.length - 1].id;
       }
     }
   }
 
   /////////////////////////// 重置用户密码
-  confirmResetPwd(){
-    if (this.selectUserInfo == null){
-      this.notificationService.error("系统提示","请先选择一个用户操作");
+  confirmResetPwd() {
+    if (this.selectUserInfo == null) {
+      this.notificationService.error("系统提示", "请先选择一个用户操作");
       return;
     }
 
-    this.http.post("/user-center-server/sys_user/reset/pwd",{userId:this.selectUserInfo.userId})
+    this.http.post("/user-center-server/sys_user/reset/pwd", {userId: this.selectUserInfo.userId})
       .subscribe(
-      res=>{this.notificationService.success("系统提示",res.msg)}
-    )
+        res => {
+          this.notificationService.success("系统提示", res.msg)
+          this.searchUserList();
+        }
+      )
 
   }
+
+  /////////////////////////// 删除用户信息
+  confirmDelUser() {
+    if (this.selectUserInfo == null) {
+      this.notificationService.error("系统提示", "请先选择一个用户操作");
+      return;
+    }
+    this.http.delete("/user-center-server/sys_user/delete/"+this.selectUserInfo.userId)
+      .subscribe(
+        res => {
+          this.notificationService.success("系统提示", res.msg)
+          this.searchUserList();
+        }
+      )
+  }
+
+
+  // 根据用户的deptId 生成 选择中的级联列表数据
+  getSelectCascaderListByCurrentUserDeptId() {
+    if (this.deptCascader.length == 0 || this.userSaveParam == null || this.userSaveParam.deptId == null || this.userSaveParam.deptId == undefined) {
+      this.selectCascaderDept = [];
+    } else {
+      let selectNode = this.findSelectNode(this.deptCascader, 6);
+      let selectNodeList = this.genSelectList(selectNode, []);
+      this.selectCascaderDept = selectNodeList;
+    }
+  }
+
+  private findSelectNode(deptList: [], deptId: any): any {
+    for (let dept of deptList) {
+      if (dept['id'] == deptId) {
+        return dept;
+      } else {
+        if (!dept['isLeaf']) {
+          return this.findSelectNode(dept['children'], deptId)
+        }
+      }
+    }
+  }
+
+  private genSelectList(currentNode: any, selectDeptList: any): any {
+    selectDeptList.unshift(currentNode);
+    if (currentNode['parent'] == null || currentNode['parent'] == undefined) {
+      return selectDeptList;
+    } else {
+      let parent = this.findSelectNode(this.deptCascader, currentNode['parent']['id']);
+      return this.genSelectList(parent, selectDeptList);
+    }
+
+  }
+
 }
