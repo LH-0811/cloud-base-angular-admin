@@ -76,7 +76,8 @@ export class SystemRolesComponent implements OnInit {
       }
     );
   }
-  allResTreeClick($event:any){
+
+  allResTreeClick($event: any) {
     console.log($event);
   }
 
@@ -140,14 +141,12 @@ export class SystemRolesComponent implements OnInit {
     console.log(this.selectRoleInfo)
   }
 
-
-
   /////////////////////////// 新增角色数据
   roleSaveParam: RoleSaveParam | null = null; // 保存用户参数
   roleSaveModalShowFlag = false; // 是否显示用户创建模态框
   roleSaveLoading = false; // 是否正在保存用户信息
   @ViewChild("roleSaveTree")
-  roleSaveTree:any;
+  roleSaveTree: any;
   // 显示模态框方法
 
   // 以创建用户的方式打开编辑用户信息模态框
@@ -173,6 +172,9 @@ export class SystemRolesComponent implements OnInit {
   roleSaveHandleSave(): void {
     console.log(this.roleSaveTree)
     console.log(this.roleSaveTree.getCheckedNodeList())
+    console.log(this.roleSaveTree.getHalfCheckedNodeList())
+
+    this.getCheckedResIdListWhenRoleSave();
     /*this.roleSaveLoading = true;
     if (this.roleSaveParam == null) {
       this.notificationService.error('系统提示', '保存信息尚未初始化');
@@ -201,6 +203,35 @@ export class SystemRolesComponent implements OnInit {
   roleSaveHandleCancel(): void {
     // 取消视图显示
     this.roleSaveModalShowFlag = false;
+  }
+
+  // 获取到创建角色时所有被选中的资源id
+  getCheckedResIdListWhenRoleSave() {
+    // 全部应该被获取到的节点列表
+    let allCheckNode:never[] = [];
+    // 被全选的资源节点
+    let checkedNodeList = this.roleSaveTree.getCheckedNodeList();
+    // 被半选的资源节点
+    let halfCheckedNodeList = this.roleSaveTree.getHalfCheckedNodeList();
+    allCheckNode = allCheckNode.concat(checkedNodeList,halfCheckedNodeList);
+
+    let resultList = this.getCheckOrHalfChekNodeList(allCheckNode,[]);
+    console.log(resultList)
+  }
+
+  getCheckOrHalfChekNodeList(nodeList:any, resultList: any): [] {
+    for (let node of nodeList) {
+      if (node['isChecked'] || node['isHalfChecked']) {
+        var resIdList = resultList.map((ele: any)=>{ return ele['key']});
+        if (resIdList.indexOf(node['key']) == -1){
+          resultList.push(node);
+        }
+      }
+      if (!node['isLeaf']) {
+        this.getCheckOrHalfChekNodeList(node['children'], resultList);
+      }
+    }
+    return  resultList;
   }
 
 }
