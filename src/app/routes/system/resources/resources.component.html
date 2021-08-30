@@ -1,1 +1,165 @@
 <page-header></page-header>
+
+<div nz-row>
+  <div nz-col nzSpan="10">
+    <nz-card style="width:100%;">
+      <div nz-row>
+        <button nz-button [nzType]="'primary'" (click)="resSaveShowModal()" >新增</button>
+        <button nz-button nzDanger [nzType]="'dashed'" [disabled]="selectResInfo == null"
+                nz-popconfirm
+                nzPopconfirmTitle="确定要删除资源吗?"
+                nzPopconfirmPlacement="top"
+                (nzOnConfirm)="confirmResDel()" >删除</button>
+      </div>
+      <div nz-row style="margin-top: 24px;">
+        <!--资源树-->
+        <nz-tree #resTree [nzData]="resTreeList" (nzClick)="resTreeNodeClick($event)"></nz-tree>
+
+      </div>
+    </nz-card>
+  </div>
+
+  <div nz-col nzSpan="14">
+    <nz-card style="width:100%;" nzTitle="菜单详情">
+
+      <nz-empty *ngIf="selectResInfo == null"
+                nzNotFoundImage="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                [nzNotFoundContent]="contentTpl">
+        <ng-template #contentTpl>
+        <span>
+          暂无资源详情,请选择资源。
+        </span>
+        </ng-template>
+      </nz-empty>
+
+      <div *ngIf="selectResInfo != null">
+        <form nz-form>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="7">名称</nz-form-label>
+            <nz-form-control [nzSpan]="12">
+              <input nz-input readonly [(ngModel)]="selectResInfo.name" name="selectResInfo_name"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="7">类型</nz-form-label>
+            <nz-form-control [nzSpan]="12">
+              <input nz-input readonly
+                     [value]="selectResInfo.type=='1'?'菜单':selectResInfo.type=='2'?'接口':selectResInfo.type=='3'?'权限码':'静态资源'"
+                     name="selectResInfo_type"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="7">权限码</nz-form-label>
+            <nz-form-control [nzSpan]="12">
+              <input nz-input readonly [(ngModel)]="selectResInfo.code" name="selectResInfo_code"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="7">URL地址</nz-form-label>
+            <nz-form-control [nzSpan]="12">
+              <input nz-input readonly [(ngModel)]="selectResInfo.url" name="selectResInfo_url"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="7">图标</nz-form-label>
+            <nz-form-control [nzSpan]="12">
+              <input nz-input readonly [(ngModel)]="selectResInfo.icon" name="selectResInfo_icon"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="7">备注</nz-form-label>
+            <nz-form-control [nzSpan]="12">
+              <input nz-input readonly [(ngModel)]="selectResInfo.notes" name="selectResInfo_notes"/>
+            </nz-form-control>
+          </nz-form-item>
+
+        </form>
+      </div>
+
+    </nz-card>
+  </div>
+</div>
+
+
+<!-- 新增资源 -->
+<nz-modal
+  [(nzVisible)]="resSaveModalShowFlag"
+  nzTitle="新增资源"
+  [nzContent]="resSaveContent"
+  [nzFooter]="resSaveFooter"
+  (nzOnCancel)="resSaveHandleCancel()">
+
+  <ng-template #resSaveContent>
+    <form nz-form *ngIf="resSaveParam!=null">
+
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">父节点</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input *ngIf="selectResInfo != null" nz-input [value] ="selectResInfo.title" name="resSaveParam_p_title"/>
+          <input *ngIf="selectResInfo == null" nz-input [value] ="'无'" name="resSaveParam_p_title"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">资源名称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="resSaveParam.name" name="resSaveParam_name" placeholder="输入资源名称"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">资源类型</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <nz-select [(ngModel)]="resSaveParam.type" name="resSaveParam_type" nzPlaceHolder="资源类型">
+            <nz-option [nzValue]="'1'" nzLabel="菜单"></nz-option>
+            <nz-option [nzValue]="'2'" nzLabel="接口"></nz-option>
+            <nz-option [nzValue]="'3'" nzLabel="权限码"></nz-option>
+            <nz-option [nzValue]="'4'" nzLabel="静态资源"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">资源URL</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="resSaveParam.url" name="resSaveParam_url" placeholder="输入资源URL"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">权限码</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="resSaveParam.code" name="resSaveParam_code" placeholder="输入权限码"/>
+        </nz-form-control>
+      </nz-form-item>
+
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">图标</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="resSaveParam.icon" name="resSaveParam_icon" placeholder="图标(待优化)"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">排序</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input type="number" [(ngModel)]="resSaveParam.orderNo" name="resSaveParam_orderNo" placeholder="排序"/>
+        </nz-form-control>
+      </nz-form-item>
+
+    </form>
+  </ng-template>
+
+  <ng-template #resSaveFooter>
+    <button nz-button nzType="default" (click)="resSaveHandleCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="resSaveHandleSave()" [nzLoading]="resSaveLoading">保存</button>
+  </ng-template>
+</nz-modal>

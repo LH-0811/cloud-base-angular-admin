@@ -154,6 +154,7 @@ export class SystemRolesComponent implements OnInit {
     // 打开创建视图之前先初始化一个保存参数实体类
     if (this.roleSaveParam == null || (this.roleSaveParam.id != null || this.roleSaveParam.id != undefined)) {
       this.roleSaveParam = new RoleSaveParam();
+      this.roleSaveParam.sysResTree = JSON.parse(JSON.stringify(this.allResTree));
     }
     // 打开视图
     this.roleSaveModalShowFlag = true;
@@ -163,9 +164,17 @@ export class SystemRolesComponent implements OnInit {
   roleUpdateShowModal(): void {
     // 打开创建视图之前先初始化一个保存参数实体类
     this.roleSaveParam = JSON.parse(JSON.stringify(this.selectRoleInfo));
-    // 生成选择的级联部门列表
+    if (this.roleSaveParam != null) {
+      // 生成选择的级联部门列表
+      this.roleSaveParam.sysResTree = JSON.parse(JSON.stringify(this.allResTree));
+    }
     // 打开视图
     this.roleSaveModalShowFlag = true;
+
+    // 设置被选中的列表
+    setTimeout(() => {
+      this.setCheckedNodeForUpdateRole();
+    }, 800);
   }
 
   // 执行保存方法
@@ -174,20 +183,24 @@ export class SystemRolesComponent implements OnInit {
     console.log(this.roleSaveTree.getCheckedNodeList())
     console.log(this.roleSaveTree.getHalfCheckedNodeList())
 
-    this.getCheckedResIdListWhenRoleSave();
-    /*this.roleSaveLoading = true;
+    let checkedResIdListWhenRoleSave = this.getCheckedResIdListWhenRoleSave();
+    let resIdList = checkedResIdListWhenRoleSave.map((ele) => ele['key']);
+    console.log("resIdList", resIdList);
+    this.roleSaveLoading = true;
     if (this.roleSaveParam == null) {
       this.notificationService.error('系统提示', '保存信息尚未初始化');
       return;
     }
-    let saveUrl = "/user-center-server/sys_res/create";
+    let saveUrl = "/user-center-server/sys_role/create";
     if (this.roleSaveParam.id != null || this.roleSaveParam.id != undefined) {
-      saveUrl = "/user-center-server/sys_res/update";
+      saveUrl = "/user-center-server/sys_role/update";
     }
+    this.roleSaveParam.resIdList = resIdList;
     this.http.post(saveUrl, this.roleSaveParam).subscribe(
       res => {
         this.notificationService.success("系统提示", res.msg);
         this.roleSaveParam = null;
+        this.selectRoleInfo = null;
         this.searchRoleList();
       },
       error => {
@@ -196,7 +209,8 @@ export class SystemRolesComponent implements OnInit {
         this.roleSaveLoading = false;
         this.roleSaveModalShowFlag = false;
       }
-    )*/
+    )
+
   }
 
   // 取消保存框
@@ -206,24 +220,27 @@ export class SystemRolesComponent implements OnInit {
   }
 
   // 获取到创建角色时所有被选中的资源id
-  getCheckedResIdListWhenRoleSave() {
+  getCheckedResIdListWhenRoleSave(): [] {
     // 全部应该被获取到的节点列表
-    let allCheckNode:never[] = [];
+    let allCheckNode: never[] = [];
     // 被全选的资源节点
     let checkedNodeList = this.roleSaveTree.getCheckedNodeList();
     // 被半选的资源节点
     let halfCheckedNodeList = this.roleSaveTree.getHalfCheckedNodeList();
-    allCheckNode = allCheckNode.concat(checkedNodeList,halfCheckedNodeList);
+    allCheckNode = allCheckNode.concat(checkedNodeList, halfCheckedNodeList);
 
-    let resultList = this.getCheckOrHalfChekNodeList(allCheckNode,[]);
+    let resultList = this.getCheckOrHalfChekNodeList(allCheckNode, []);
     console.log(resultList)
+    return resultList;
   }
 
-  getCheckOrHalfChekNodeList(nodeList:any, resultList: any): [] {
+  getCheckOrHalfChekNodeList(nodeList: any, resultList: any): [] {
     for (let node of nodeList) {
       if (node['isChecked'] || node['isHalfChecked']) {
-        var resIdList = resultList.map((ele: any)=>{ return ele['key']});
-        if (resIdList.indexOf(node['key']) == -1){
+        var resIdList = resultList.map((ele: any) => {
+          return ele['key']
+        });
+        if (resIdList.indexOf(node['key']) == -1) {
           resultList.push(node);
         }
       }
@@ -231,7 +248,50 @@ export class SystemRolesComponent implements OnInit {
         this.getCheckOrHalfChekNodeList(node['children'], resultList);
       }
     }
-    return  resultList;
+    return resultList;
   }
 
+  setCheckedNodeForUpdateRole() {
+    if (this.roleSaveParam == null || this.roleSaveParam.sysResList == null || this.roleSaveParam.sysResList.length == 0) {
+      return;
+    }
+    var allNodes = this.roleSaveTree.getTreeNodes();
+    console.log("allNodes:", allNodes)
+    console.log("this.roleSaveParam.sysResList", this.roleSaveParam.sysResList)
+    let checkIdList: [] = [];
+    for (let element of this.roleSaveParam.sysResList) {
+      // @ts-ignore
+      checkIdList.push(element.id)
+    }
+    console.log("this.roleSaveParam.sysResIdList", checkIdList)
+    this.setChecked(checkIdList, allNodes)
+  }
+
+  setChecked(checkedKeys: [], nodeList: any[]) {
+    for (var node of nodeList) {
+      // @ts-ignore
+      if (node['isLeaf'] && checkedKeys.indexOf(node['key']) > -1) {
+        // node['isChecked'] = true;
+        node.setSyncChecked(true);
+      }
+      if (!node['isLeaf']) {
+        this.setChecked(checkedKeys, node['children']);
+      }
+    }
+  }
+
+
+  /////////////////////////// 删除角色数据
+  confirmRoleDel() {
+    if (this.selectRoleInfo == null) {
+      this.notificationService.error("系统提示", "请选择角色进行操作!");
+      return;
+    }
+    this.http.delete("/user-center-server/sys_role/delete/" + this.selectRoleInfo.id)
+      .subscribe(res => {
+          this.notificationService.success("系统提示", res.msg);
+          this.searchRoleList();
+          this.selectRoleInfo = null;
+        })
+  }
 }

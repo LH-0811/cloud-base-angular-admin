@@ -20,4 +20,16 @@ export class RoleSaveParam {
 
   // "资源id列表")
   resIdList: any;
+
+
+  /**
+   * 角色资源列表
+   */
+  sysResList:any;
+
+  /**
+   * 角色资源树
+   */
+  sysResTree:any;
+
 }

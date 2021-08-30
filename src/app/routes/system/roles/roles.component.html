@@ -37,12 +37,12 @@
         <div nz-row style="margin-bottom: 4px;">
           <div nz-col [nzSpan]="18" style="text-align: left">
             <button nz-button [nzType]="'primary'" (click)="roleSaveShowModal()" >新增</button>
-            <button [disabled]="selectRoleInfo == null" nz-button [nzType]="'default'" >修改</button>
+            <button [disabled]="selectRoleInfo == null" nz-button [nzType]="'default'" (click)="roleUpdateShowModal()" >修改</button>
             <button nz-button nzDanger [nzType]="'dashed'" [disabled]="selectRoleInfo == null"
                     nz-popconfirm
                     nzPopconfirmTitle="确定要删除角色吗?"
                     nzPopconfirmPlacement="top"
-                    >删除</button>
+                    (nzOnConfirm)="confirmRoleDel()" >删除</button>
           </div>
 
           <div nz-col [nzSpan]="6" style="text-align: right">
@@ -143,11 +143,11 @@
         <nz-form-label [nzSpan]="7">授权</nz-form-label>
         <nz-form-control [nzSpan]="17">
           <nz-card >
-            <!--部门树-->
+            <!--资源树-->
             <nz-tree
               #roleSaveTree
               nzCheckable
-              [nzData]="allResTree"
+              [nzData]="roleSaveParam.sysResTree"
               (nzClick)="allResTreeClick($event)"
             ></nz-tree>
           </nz-card>
