@@ -72,6 +72,6 @@ export class UserInfoVo {
    */
   updateTime: any;
 
-
   selected: any;
+
 }

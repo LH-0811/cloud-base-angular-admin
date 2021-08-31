@@ -1,1 +1,128 @@
 <page-header></page-header>
+<div nz-row>
+  <!--左侧部门搜索-->
+  <div nz-col nzSpan="10">
+
+    <nz-card style="width:100%;" >
+
+      <div nz-row>
+        <button nz-button [nzType]="'primary'" (click)="deptSaveShowModal()" >新增</button>
+        <button nz-button nzDanger [nzType]="'dashed'" [disabled]="deptSelectInfo == null"
+                nz-popconfirm
+                nzPopconfirmTitle="确定要删除资源吗?"
+                nzPopconfirmPlacement="top"
+                (nzOnConfirm)="confirmDeptDel()" >删除</button>
+      </div>
+
+      <!--搜索框-->
+      <nz-input-group [nzSuffix]="suffixIconSearch" style="margin-top: 24px;">
+        <input type="text" nz-input [(ngModel)]="deptSearchParam" (change)="searchDeptTree()"
+               placeholder="输入部门名称查询"/>
+      </nz-input-group>
+      <ng-template #suffixIconSearch>
+        <i nz-icon nzType="search" (click)="searchDeptTree()"></i>
+      </ng-template>
+
+      <!--部门树-->
+      <nz-tree
+        style="margin-top: 24px;"
+        #deptTreeNode
+        [nzData]="deptTree"
+        (nzClick)="deptTreeClick($event)"
+      ></nz-tree>
+    </nz-card>
+  </div>
+  <!--右侧用户搜索列表-->
+  <div nz-col nzSpan="14">
+    <nz-card nzTitle="部门详情" style="width:100%;">
+      <nz-empty *ngIf="deptSelectInfo == null"
+                nzNotFoundImage="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                [nzNotFoundContent]="contentTpl">
+        <ng-template #contentTpl>
+        <span>
+          暂无资源详情,请选择部门。
+        </span>
+        </ng-template>
+      </nz-empty>
+
+      <div *ngIf="deptSelectInfo != null">
+        <form nz-form>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="7">名称</nz-form-label>
+            <nz-form-control [nzSpan]="12">
+              <input nz-input  [(ngModel)]="deptSelectInfo.name" name="deptSelectInfo_name"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="7">编号</nz-form-label>
+            <nz-form-control [nzSpan]="12">
+              <input nz-input [(ngModel)]="deptSelectInfo.no" name="deptSelectInfo_no"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSpan]="7">备注</nz-form-label>
+            <nz-form-control [nzSpan]="12">
+              <input nz-input [(ngModel)]="deptSelectInfo.notes" name="deptSelectInfo_notes"/>
+            </nz-form-control>
+          </nz-form-item>
+
+        </form>
+      </div>
+    </nz-card>
+  </div>
+</div>
+
+
+
+<!-- 新增部门 -->
+<nz-modal
+  [(nzVisible)]="deptSaveModalShowFlag"
+  nzTitle="新增部门"
+  [nzContent]="deptSaveContent"
+  [nzFooter]="deptSaveFooter"
+  (nzOnCancel)="deptSaveHandleCancel()">
+
+  <ng-template #deptSaveContent>
+    <form nz-form *ngIf="deptSaveParam!=null">
+
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">父节点</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input *ngIf="deptSelectInfo != null" nz-input [value] ="deptSelectInfo.title" name="deptSaveParam_p_title"/>
+          <input *ngIf="deptSelectInfo == null" nz-input [value] ="'无'" name="deptSaveParam_p_title"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">名称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="deptSaveParam.name" name="deptSaveParam_name" placeholder="输入部门名称"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">编号</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="deptSaveParam.no" name="deptSaveParam_no" placeholder="输入部门编号"/>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">备注</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="deptSaveParam.notes" name="deptSaveParam_notes" placeholder="备注"/>
+        </nz-form-control>
+      </nz-form-item>
+
+    </form>
+  </ng-template>
+
+  <ng-template #deptSaveFooter>
+    <button nz-button nzType="default" (click)="deptSaveHandleCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="deptSaveHandleSave()" [nzLoading]="deptSaveLoading">保存</button>
+  </ng-template>
+</nz-modal>
