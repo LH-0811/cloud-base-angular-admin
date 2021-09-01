@@ -52,6 +52,20 @@ import {UserSaveParam} from "./entity/user.save.param";
 })
 export class SystemUsersComponent implements OnInit {
 
+  // URLS
+  USER_CREATE:string = '/user-center-server/sys_user/create';
+  USER_UPDATE:string = '/user-center-server/sys_user/update';
+  USER_DELETE:string = '/user-center-server/sys_user/delete/';
+  USER_RESET_PWD:string = '/user-center-server/sys_user/reset/pwd';
+  DEPT_CASCADER_QUERY:string = '/user-center-server/sys_dept/cascader/query';
+  POSITIONS_QUERY_ALL:string = '/user-center-server/sys_positions/query/all';
+  ROLE_QUERY_ALL_LIST:string = '/user-center-server/sys_role/query/all_list';
+  DEPT_TREE_QUERY:string = '/user-center-server/sys_dept/tree/query';
+  USER_DEPT_QUERY:string = '/user-center-server/sys_user/dept/query';
+
+
+
+
   // 构造方法 注入组件
   constructor(private http: _HttpClient, private notificationService: NzNotificationService) {
   }
@@ -84,7 +98,7 @@ export class SystemUsersComponent implements OnInit {
 
   // 获取部门
   getDeptCascader() {
-    this.http.get("/user-center-server/sys_dept/cascader/query").subscribe(
+    this.http.get(this.DEPT_CASCADER_QUERY).subscribe(
       res => {
         this.deptCascader = res.data;
       },
@@ -96,7 +110,7 @@ export class SystemUsersComponent implements OnInit {
   // 获取岗位列表
   getPositionList() {
 
-    this.http.get("/user-center-server/sys_position/query/all").subscribe(
+    this.http.get(this.POSITIONS_QUERY_ALL).subscribe(
       res => {
         this.positionList = res.data;
       },
@@ -107,7 +121,7 @@ export class SystemUsersComponent implements OnInit {
 
   // 获取角色列表
   getRoleList() {
-    this.http.get("/user-center-server/sys_role/query/all_list").subscribe(
+    this.http.get(this.ROLE_QUERY_ALL_LIST).subscribe(
       res => {
         this.roleList = res.data;
       },
@@ -123,7 +137,7 @@ export class SystemUsersComponent implements OnInit {
 
   // 部门名称查询输入框发生输入变化时触发部门树查询
   searchDeptTree() {
-    let reqUrl = "/user-center-server/sys_dept/tree/query";
+    let reqUrl = this.DEPT_TREE_QUERY;
     if (this.deptSearchParam != null && this.deptSearchParam != '') {
       reqUrl = `${reqUrl}?deptName=${this.deptSearchParam}`;
     }
@@ -174,7 +188,7 @@ export class SystemUsersComponent implements OnInit {
   // 查询用户数据
   searchUserList() {
     console.log(this.userQueryParam)
-    this.http.post('/user-center-server/sys_dept/user/query', this.userQueryParam).subscribe(
+    this.http.post(this.USER_DEPT_QUERY, this.userQueryParam).subscribe(
       res => {
         this.userInfoList = res.data.list;
         this.userInfoPageSize = res.data.pageSize;
@@ -253,9 +267,9 @@ export class SystemUsersComponent implements OnInit {
       this.notificationService.error('系统提示', '保存信息尚未初始化');
       return;
     }
-    let saveUrl = "/user-center-server/sys_user/create";
+    let saveUrl = this.USER_CREATE;
     if (this.userSaveParam.userId != null || this.userSaveParam.userId != undefined) {
-      saveUrl = "/user-center-server/sys_user/update";
+      saveUrl = this.USER_UPDATE;
     }
     this.http.post(saveUrl, this.userSaveParam).subscribe(
       res => {
@@ -298,7 +312,7 @@ export class SystemUsersComponent implements OnInit {
       return;
     }
 
-    this.http.post("/user-center-server/sys_user/reset/pwd", {userId: this.selectUserInfo.userId})
+    this.http.post(this.USER_RESET_PWD, {userId: this.selectUserInfo.userId})
       .subscribe(
         res => {
           this.notificationService.success("系统提示", res.msg)
@@ -314,7 +328,7 @@ export class SystemUsersComponent implements OnInit {
       this.notificationService.error("系统提示", "请先选择一个用户操作");
       return;
     }
-    this.http.delete("/user-center-server/sys_user/delete/"+this.selectUserInfo.userId)
+    this.http.delete(this.USER_DELETE+this.selectUserInfo.userId)
       .subscribe(
         res => {
           this.notificationService.success("系统提示", res.msg)

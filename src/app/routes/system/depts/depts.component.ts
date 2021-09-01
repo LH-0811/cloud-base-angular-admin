@@ -11,6 +11,12 @@ import {DeptCreateParam} from "./entity/dept.create.param";
 })
 export class SystemDeptsComponent implements OnInit {
 
+
+  ///////////URLS
+  DEPT_TREE_QUERY = '/user-center-server/sys_dept/tree/query';
+  DEPT_DELETE = '/user-center-server/sys_dept/delete/';
+  DEPT_CREATE = '/user-center-server/sys_dept/create';
+
   constructor(private http: _HttpClient, private notificationService: NzNotificationService) {
   }
 
@@ -26,7 +32,7 @@ export class SystemDeptsComponent implements OnInit {
 
   // 部门名称查询输入框发生输入变化时触发部门树查询
   searchDeptTree() {
-    let reqUrl = "/user-center-server/sys_dept/tree/query";
+    let reqUrl = this.DEPT_TREE_QUERY;
     if (this.deptSearchParam != null && this.deptSearchParam != '') {
       reqUrl = `${reqUrl}?deptName=${this.deptSearchParam}`;
     }
@@ -59,7 +65,7 @@ export class SystemDeptsComponent implements OnInit {
       this.notificationService.error("系统提示","请选择部门进行操作");
       return;
     }
-    this.http.delete("/user-center-server/sys_dept/delete/" + this.deptSelectInfo.id)
+    this.http.delete(this.DEPT_DELETE + this.deptSelectInfo.id)
       .subscribe(
         res=>{
           this.notificationService.success("系统提示","删除成功");
@@ -91,7 +97,7 @@ export class SystemDeptsComponent implements OnInit {
     if (this.deptSelectInfo != null && this.deptSaveParam != null) {
       this.deptSaveParam.parentId = this.deptSelectInfo.id;
     }
-    this.http.post("/user-center-server/sys_dept/create", this.deptSaveParam).subscribe(
+    this.http.post(this.DEPT_CREATE, this.deptSaveParam).subscribe(
       res => {
         this.notificationService.success("系统提示", res.msg);
         this.searchDeptTree();

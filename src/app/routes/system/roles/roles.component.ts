@@ -50,6 +50,13 @@ import {RoleSaveParam} from "./entity/role.save.param";
 })
 export class SystemRolesComponent implements OnInit {
 
+  /////////// URLS
+  ROLE_QUERY:string = '/user-center-server/sys_role/query';
+  ROLE_CREATE:string = '/user-center-server/sys_role/create';
+  ROLE_UPDATE:string = '/user-center-server/sys_role/update';
+  ROLE_DELETE:string = '/user-center-server/sys_role/delete/';
+  RES_TREE:string = '/user-center-server/sys_res/tree';
+
   //////////////////////////////// 初始化
   // 构造方法注入组件
   constructor(private http: _HttpClient, private notificationService: NzNotificationService) {
@@ -70,7 +77,7 @@ export class SystemRolesComponent implements OnInit {
   allResTree = []; // 全部的资源树数据
   getAllResTree() {
     console.log(this.roleQueryParam)
-    this.http.get('/user-center-server/sys_res/tree', this.roleQueryParam).subscribe(
+    this.http.get(this.RES_TREE, this.roleQueryParam).subscribe(
       res => {
         this.allResTree = res.data;
       }
@@ -97,7 +104,7 @@ export class SystemRolesComponent implements OnInit {
   // 查询角色数据
   searchRoleList() {
     console.log(this.roleQueryParam)
-    this.http.post('/user-center-server/sys_role/query', this.roleQueryParam).subscribe(
+    this.http.post(this.ROLE_QUERY, this.roleQueryParam).subscribe(
       res => {
         this.roleInfoList = res.data.list;
         this.roleInfoPageSize = res.data.pageSize;
@@ -174,7 +181,7 @@ export class SystemRolesComponent implements OnInit {
     // 设置被选中的列表
     setTimeout(() => {
       this.setCheckedNodeForUpdateRole();
-    }, 800);
+    }, 300);
   }
 
   // 执行保存方法
@@ -191,9 +198,9 @@ export class SystemRolesComponent implements OnInit {
       this.notificationService.error('系统提示', '保存信息尚未初始化');
       return;
     }
-    let saveUrl = "/user-center-server/sys_role/create";
+    let saveUrl = this.ROLE_CREATE;
     if (this.roleSaveParam.id != null || this.roleSaveParam.id != undefined) {
-      saveUrl = "/user-center-server/sys_role/update";
+      saveUrl = this.ROLE_UPDATE;
     }
     this.roleSaveParam.resIdList = resIdList;
     this.http.post(saveUrl, this.roleSaveParam).subscribe(
@@ -287,7 +294,7 @@ export class SystemRolesComponent implements OnInit {
       this.notificationService.error("系统提示", "请选择角色进行操作!");
       return;
     }
-    this.http.delete("/user-center-server/sys_role/delete/" + this.selectRoleInfo.id)
+    this.http.delete(this.ROLE_DELETE + this.selectRoleInfo.id)
       .subscribe(res => {
           this.notificationService.success("系统提示", res.msg);
           this.searchRoleList();

@@ -50,6 +50,10 @@ import {PositionsCreateParam} from "./entity/positions.create.param";
 })
 export class SystemPositionsComponent implements OnInit {
 
+  //////////////////////////////// URLS
+  POSITIONS_QUERY = '/user-center-server/sys_positions/query';
+  POSITIONS_CREATE = '/user-center-server/sys_positions/create';
+  POSITIONS_DELETE = '/user-center-server/sys_positions/delete/';
   //////////////////////////////// 初始化
   // 构造方法注入组件
   constructor(private http: _HttpClient, private notificationService: NzNotificationService) {
@@ -77,7 +81,7 @@ export class SystemPositionsComponent implements OnInit {
 
   // 查询岗位数据
   searchPositionsList() {
-    this.http.post('/user-center-server/sys_positions/query', this.positionsQueryParam).subscribe(
+    this.http.post(this.POSITIONS_QUERY, this.positionsQueryParam).subscribe(
       res => {
         this.positionsInfoList = res.data.list;
         this.positionsInfoPageSize = res.data.pageSize;
@@ -140,7 +144,7 @@ export class SystemPositionsComponent implements OnInit {
   // 执行保存方法
   positionsSaveHandleSave(): void {
     this.positionsSaveLoading = true;
-    this.http.post("/user-center-server/sys_positions/create", this.positionsSaveParam).subscribe(
+    this.http.post(this.POSITIONS_CREATE, this.positionsSaveParam).subscribe(
       res => {
         this.notificationService.success("系统提示", res.msg);
         this.searchPositionsList();
@@ -165,13 +169,13 @@ export class SystemPositionsComponent implements OnInit {
   /////////////////////////// 删除岗位数据
   confirmPositionsDel() {
     if (this.selectPositionsInfo == null) {
-      this.notificationService.error("系统提示","请选择岗位进行操作");
+      this.notificationService.error("系统提示", "请选择岗位进行操作");
       return;
     }
-    this.http.delete("/user-center-server/sys_positions/delete/" + this.selectPositionsInfo.id)
+    this.http.delete(this.POSITIONS_DELETE + this.selectPositionsInfo.id)
       .subscribe(
-        res=>{
-          this.notificationService.success("系统提示","删除成功");
+        res => {
+          this.notificationService.success("系统提示", "删除成功");
           this.searchPositionsList();
           this.selectPositionsInfo = null;
         }

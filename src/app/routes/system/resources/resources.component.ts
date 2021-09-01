@@ -49,6 +49,12 @@ import {ResCreateParam} from "./entity/res.create.param";
 })
 export class SystemResourcesComponent implements OnInit {
 
+  ///////////////URLS
+  RES_TREE:string = '/user-center-server/sys_res/tree';
+  RES_CREATE:string = '/user-center-server/sys_res/create';
+  RES_DELETE:string = '/user-center-server/sys_res/delete/';
+
+
   //////////////////////////////// 初始化
   // 构造方法注入组件
   constructor(private http: _HttpClient, private notificationService: NzNotificationService) {
@@ -69,7 +75,7 @@ export class SystemResourcesComponent implements OnInit {
 
   // 查询角色数据
   searchResTree() {
-    this.http.get('/user-center-server/sys_res/tree').subscribe(
+    this.http.get(this.RES_TREE).subscribe(
       res => {
         this.resTreeList = res.data;
       }
@@ -106,7 +112,7 @@ export class SystemResourcesComponent implements OnInit {
     if (this.selectResInfo != null && this.resSaveParam != null) {
       this.resSaveParam.parentId = this.selectResInfo.id;
     }
-    this.http.post("/user-center-server/sys_res/create", this.resSaveParam).subscribe(
+    this.http.post(this.RES_CREATE, this.resSaveParam).subscribe(
       res => {
         this.notificationService.success("系统提示", res.msg);
         this.searchResTree();
@@ -135,7 +141,7 @@ export class SystemResourcesComponent implements OnInit {
       this.notificationService.error("系统提示","请选择资源进行操作");
       return;
     }
-    this.http.delete("/user-center-server/sys_res/delete/" + this.selectResInfo.id)
+    this.http.delete(this.RES_DELETE + this.selectResInfo.id)
       .subscribe(
         res=>{
           this.notificationService.success("系统提示","删除成功");
