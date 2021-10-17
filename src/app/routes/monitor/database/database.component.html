@@ -1,0 +1,21 @@
+<page-header></page-header>
+
+
+<nz-card [nzBordered]="false" nzTitle="数据库监控" [nzExtra]="extraTemplate">
+  <nz-empty *ngIf="this.selectAddress == null"></nz-empty>
+  <iframe
+    *ngIf="this.selectAddress != null"
+    width="100%"
+    height="800"
+    [src]="this.webUrl">
+  </iframe>
+</nz-card>
+<ng-template #extraTemplate>
+  <nz-select style="width: 240px;" name="address" [(ngModel)]="selectAddress" (ngModelChange)="addressChange()"
+             nzAllowClear nzPlaceHolder="请选择一个主机" nzShowSearch>
+    <nz-option-group *ngFor="let druidMonitorVo of druidMonitorVoList" [nzLabel]="druidMonitorVo.serviceName">
+      <nz-option *ngFor="let addr of druidMonitorVo.addressList" [nzValue]="addr" [nzLabel]="addr.host"></nz-option>
+    </nz-option-group>
+  </nz-select>
+</ng-template>
+

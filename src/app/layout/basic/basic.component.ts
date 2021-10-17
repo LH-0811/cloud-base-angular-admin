@@ -7,6 +7,7 @@ import { environment } from '@env/environment';
   selector: 'layout-basic',
   template: `
     <layout-default [options]="options" [asideUser]="asideUserTpl" [content]="contentTpl">
+      <!-- 页面顶部菜单栏 -->
       <layout-default-header-item direction="left">
         <a layout-default-header-item-trigger href="//github.com/ng-alain/ng-alain" target="_blank">
           <i nz-icon nzType="github"></i>
@@ -43,6 +44,8 @@ import { environment } from '@env/environment';
       <layout-default-header-item direction="right">
         <header-user></header-user>
       </layout-default-header-item>
+
+      <!-- 菜单上方 用户信息显示-->
       <ng-template #asideUserTpl>
         <div nz-dropdown nzTrigger="click" [nzDropdownMenu]="userMenu" class="alain-default__aside-user">
           <nz-avatar class="alain-default__aside-user-avatar" [nzSrc]="user.avatar"></nz-avatar>
@@ -58,11 +61,13 @@ import { environment } from '@env/environment';
           </ul>
         </nz-dropdown-menu>
       </ng-template>
+      <!-- 具体页面内容显示 -->
       <ng-template #contentTpl>
         <router-outlet></router-outlet>
       </ng-template>
     </layout-default>
 
+    <!--主题设置的量按钮-->
     <setting-drawer *ngIf="showSettingDrawer"></setting-drawer>
     <theme-btn></theme-btn>
   `,
