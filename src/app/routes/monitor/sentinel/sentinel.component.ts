@@ -13,5 +13,5 @@ export class MonitorSentinelComponent implements OnInit {
 
   ngOnInit(): void { }
 
-  webUrl = this.sanitizer.bypassSecurityTrustResourceUrl("http://49.232.166.94:9000/");
+  webUrl = this.sanitizer.bypassSecurityTrustResourceUrl("http://localhost:9000/");
 }
