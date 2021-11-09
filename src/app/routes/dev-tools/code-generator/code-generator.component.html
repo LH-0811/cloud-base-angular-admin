@@ -1,1 +1,72 @@
 <page-header></page-header>
+
+<nz-card style="width:100%;" nzTitle="数据源信息" [nzExtra]="extraTemplate">
+  <nz-table #datatableTable
+            [nzData]="dataTableList"
+            [nzShowSizeChanger] = 'true'
+            [nzShowQuickJumper] = 'true'
+            [nzPageSizeOptions] = '[5,10,20,50,100]'>
+    <thead>
+    <tr>
+      <th [nzChecked]="selectAllFlag" (nzCheckedChange)="clickAllTableSelect()"></th>
+      <th>表名</th>
+      <th>引擎</th>
+      <th>创建时间</th>
+      <th>备注</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of datatableTable.data">
+      <td [(nzChecked)]="data.selected" (nzCheckedChange)="genCodeData()"></td>
+      <td>{{data.tableName}}</td>
+      <td>{{data.engine}}</td>
+      <td>{{data.createTime}}</td>
+      <td>{{data.tableComment}}</td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+
+<ng-template #extraTemplate>
+  <button nz-button nzType="primary" (click)="showDbInfoModal()">修改数据源</button>
+  <button nz-button nzType="primary" [disabled]="downloadData==null" (click)="downloadCode()">生成代码</button>
+</ng-template>
+
+
+<nz-modal
+  [nzWidth]="720"
+  [(nzVisible)]="showDbInfoModalFlag"
+  nzTitle="数据源信息"
+  (nzOnCancel)="dbInfoModalCancel()"
+  (nzOnOk)="dbInfoModalOk()"
+  [nzOkLoading]="saveDaInfoModalLoading">
+  <div *nzModalContent>
+    <div>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">数据库连接</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input name="db_url" id="db_url" [(ngModel)]="databaseInfo.dbUrl"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">用户名</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input name="db_username" id="db_username" [(ngModel)]="databaseInfo.dbUsername"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">密码</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input type="password" name="db_password" id="db_password" [(ngModel)]="databaseInfo.dbPassword"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24">包路径</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input name="package_name" id="package_name" [(ngModel)]="databaseInfo.packageName"/>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+</nz-modal>

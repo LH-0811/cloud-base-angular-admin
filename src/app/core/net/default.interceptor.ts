@@ -91,6 +91,10 @@ export class DefaultInterceptor implements HttpInterceptor {
         //  正确内容：{ status: 0, response: {  } }
         // 则以下代码片断可直接适用
         if (ev instanceof HttpResponse) {
+          // 忽略 Blob 文件体
+          if (ev.body instanceof Blob) {
+            return of(ev);
+          }
           const body = ev.body;
           if (body && body.status == 401) {
             debugger
@@ -102,10 +106,7 @@ export class DefaultInterceptor implements HttpInterceptor {
               this.notification.error(`请求错误`, `${body.msg}:${data}`);
               return throwError({});
             } else {
-              // 忽略 Blob 文件体
-              if (ev.body instanceof Blob) {
-                return of(ev);
-              }
+
               // 重新修改 `body` 内容为 `response` 内容，对于绝大多数场景已经无须再关心业务状态码
               // return of(new HttpResponse(Object.assign(ev, { body: body.response })));
               // 或者依然保持完整的格式
