@@ -27,6 +27,7 @@ export class DevToolsCodeGeneratorComponent implements OnInit {
   queryTableName: string | null = null;
   selectAllFlag = false;
   downloadData: any = null;
+  genCodeLoading: boolean = false;
 
   // 重置查询条件
   resetQuery() {
@@ -70,6 +71,7 @@ export class DevToolsCodeGeneratorComponent implements OnInit {
   }
 
   downloadCode() {
+    this.genCodeLoading = true;
     this.http.post("/code-generator/code",this.downloadData,{},{observe: 'response', responseType: 'blob'}).subscribe(response => {
       console.log(response);
       const link = document.createElement('a');
@@ -80,7 +82,7 @@ export class DevToolsCodeGeneratorComponent implements OnInit {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    });
+    },error => {},()=>{this.genCodeLoading = false;});
   }
 
 /////// 修改数据源的弹框 /////////

@@ -29,7 +29,7 @@
 
 <ng-template #extraTemplate>
   <button nz-button nzType="primary" (click)="showDbInfoModal()">修改数据源</button>
-  <button nz-button nzType="primary" [disabled]="downloadData==null" (click)="downloadCode()">生成代码</button>
+  <button nz-button nzType="primary" [nzLoading]="genCodeLoading" [disabled]="downloadData==null" (click)="downloadCode()">生成代码</button>
 </ng-template>
 
 
