@@ -88,7 +88,7 @@ export class SystemRolesComponent implements OnInit {
     console.log($event);
   }
 
-  /////////////////////////// 查询用户数据
+  /////////////////////////// 查询角色数据
   selectRoleInfo: RoleInfoVo | null = null; // 当前选中的角色信息
   roleInfoList: RoleInfoVo[] = []; // 角色列表
   roleInfoTotal = 0; // 总数

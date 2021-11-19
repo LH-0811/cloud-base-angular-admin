@@ -1,0 +1,327 @@
+<page-header></page-header>
+<div nz-row>
+  <div nz-col nzSpan="24">
+    <nz-card style="width:100%;">
+      <div class="ant-advanced-search-form">
+        <div nz-row [nzGutter]="24">
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label>任务名称</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="taskQueryParam.taskName" placeholder="任务名称"
+                       name="taskQueryParam_name"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label>任务编号</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="taskQueryParam.taskNo" placeholder="任务编号" name="taskQueryParam_no"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label>是否可用</nz-form-label>
+              <nz-form-control>
+                <nz-select nzAllowClear nzPlaceHolder="选择状态" [(ngModel)]="taskQueryParam.enableFlag"
+                           name="taskQueryParam_enableFlag">
+                  <nz-option nzLabel="启用" [nzValue]="true"></nz-option>
+                  <nz-option nzLabel="停用" [nzValue]="false"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+        <div nz-row [nzGutter]="24">
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label>负责人</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="taskQueryParam.contactsName" placeholder="任务联系人"
+                       name="taskQueryParam_contactsName"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label>负责人电话</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="taskQueryParam.contactsPhone" placeholder="任务联系人电话"
+                       name="taskQueryParam_contactsPhone"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+
+        <div nz-row style="margin-bottom: 4px;">
+          <div nz-col [nzSpan]="18" style="text-align: left">
+            <button nz-button [nzType]="'primary'">新增任务</button>
+
+            <button nz-button [disabled]="selectTaskInfo == null" [nzType]="'primary'" (click)="taskInfoDrawerOpen()" >任务详情</button>
+            <button nz-button [disabled]="selectTaskInfo == null" [nzType]="'primary'" (click)="changeCronModalShow()">修改执行计划</button>
+            <button nz-button [nzType]="'primary'"  [disabled]="selectTaskInfo == null"
+                    nz-popconfirm
+                    nzPopconfirmTitle="确定要执行 启用|停用 操作吗?"
+                    nzPopconfirmPlacement="bottom"
+                    (nzOnConfirm)="changeTaskEnableFlag()">启用|停用</button>
+<!--            <button [disabled]="selectRoleInfo == null" nz-button [nzType]="'default'" (click)="roleUpdateShowModal()" >修改</button>-->
+<!--            <button nz-button nzDanger [nzType]="'dashed'" [disabled]="selectRoleInfo == null"-->
+<!--                    nz-popconfirm-->
+<!--                    nzPopconfirmTitle="确定要删除角色吗?"-->
+<!--                    nzPopconfirmPlacement="top"-->
+<!--                    (nzOnConfirm)="confirmRoleDel()" >删除</button>-->
+          </div>
+
+          <div nz-col [nzSpan]="6" style="text-align: right">
+            <button nz-button [nzType]="'primary'" (click)="searchTaskList()">查询</button>
+            <button nz-button (click)="resetQuery()">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="search-result-list">
+        <ng-template #totalTemplate let-total> 共{{ taskInfoTotal }}条</ng-template>
+        <nz-table #taskInfoTable
+                  nzShowPagination
+                  nzShowSizeChanger
+                  [nzFrontPagination]='false'
+                  [nzShowTotal]="totalTemplate"
+                  [nzData]='taskInfoList'
+                  [nzTotal]='taskInfoTotal'
+                  [(nzPageIndex)]='taskInfoPageNum'
+                  [(nzPageSize)]='taskInfoPageSize'
+                  (nzPageIndexChange)='taskInfoListPageIndexChange($event)'
+                  (nzPageSizeChange)='taskInfoListPageSizeChange($event)'>
+          <thead>
+          <tr>
+            <th>选中</th>
+            <th>任务编号</th>
+            <th>任务名称</th>
+            <th>执行计划</th>
+            <th>状态</th>
+            <th>最近执行时间</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr (click)='onSelectTaskInfoRow(data.id,!data.selected)' *ngFor='let data of taskInfoTable.data'>
+            <td nzLeft [nzShowCheckbox]='true' [(nzChecked)]='data.selected'
+                (nzCheckedChange)='onSelectTaskInfoRow(data.id,$event)'></td>
+            <td>{{ data.taskNo }}</td>
+            <td>{{ data.taskName }}</td>
+            <td>{{ data.corn }}</td>
+            <td>
+              <nz-switch disabled [(ngModel)]="data.enableFlag"></nz-switch>
+            </td>
+            <td>{{ data.lastExecTime | date:'yyyy-MM-dd HH:mm'}}</td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </div>
+    </nz-card>
+  </div>
+</div>
+
+
+<!--详情抽屉-->
+<nz-drawer
+  *ngIf="selectTaskInfo != null"
+  [nzBodyStyle]="{ overflow: 'auto' }"
+  [nzMaskClosable]="false"
+  [nzWidth]="720"
+  [nzVisible]="taskInfoDrawerShowFlag"
+  nzTitle="任务详情"
+  [nzFooter]="footerTpl"
+  (nzOnClose)="taskInfoDrawerClose()"
+>
+  <form nz-form *nzDrawerContent>
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label>任务名称</nz-form-label>
+          <nz-form-control>
+            <input nz-input name="taskBaseUpdate_taskName" [(ngModel)]="taskInfoBaseUpdateParam.taskName" placeholder="请输入任务名称" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label>任务编码</nz-form-label>
+          <nz-form-control>
+            <input nz-input disabled  name="taskBaseUpdate_taskNo" [(ngModel)]="taskInfoBaseUpdateParam.taskNo" placeholder="请输入任务编码" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label>触发方式</nz-form-label>
+          <nz-form-control>
+            <nz-select  name="taskBaseUpdate_taskType" nzPlaceHolder="选择触发方式" [(ngModel)]="taskInfoBaseUpdateParam.taskType">
+              <nz-option [nzValue]="'1'" [nzLabel]="'URL触发'"></nz-option>
+              <nz-option [nzValue]="'2'" [nzLabel]="'Bean触发'"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label>执行方式</nz-form-label>
+          <nz-form-control>
+            <nz-select name="taskBaseUpdate_execType" nzPlaceHolder="选择执行方式" [(ngModel)]="taskInfoBaseUpdateParam.execType">
+              <nz-option [nzValue]="'1'" [nzLabel]="'单节点执行'"></nz-option>
+              <nz-option [nzValue]="'2'" [nzLabel]="'全节点执行'"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label>执行计划</nz-form-label>
+          <nz-form-control>
+            <input disabled name="taskBaseUpdate_corn" nz-input [(ngModel)]="selectTaskInfo.corn" placeholder="请输入执行计划" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div *ngIf="taskInfoBaseUpdateParam.taskType=='1'" nz-row [nzGutter]="8">
+      <div nz-col nzSpan="12">
+        <nz-form-item>
+          <nz-form-label>触发URL</nz-form-label>
+          <nz-form-control>
+            <input nz-input name="taskBaseUpdate_taskUrl" [(ngModel)]="taskInfoBaseUpdateParam.taskUrl" placeholder="请输入触发URL" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div *ngIf="taskInfoBaseUpdateParam.taskType=='2'" nz-row [nzGutter]="8">
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label>执行Bean类名</nz-form-label>
+          <nz-form-control>
+            <input nz-input name="taskBaseUpdate_taskBeanName" [(ngModel)]="taskInfoBaseUpdateParam.taskBeanName" placeholder="请输入应用上下文执行中对应的全限定类名" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label>执行方法名</nz-form-label>
+          <nz-form-control>
+            <input nz-input name="taskBaseUpdate_taskMethod" [(ngModel)]="taskInfoBaseUpdateParam.taskMethod" placeholder="应用上下文中对应的方法名，或者url的请求类型(GET|POST)" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label>执行参数</nz-form-label>
+          <nz-form-control>
+            <input nz-input name="taskBaseUpdate_taskParam" [(ngModel)]="taskInfoBaseUpdateParam.taskParam" placeholder="执行参数(参数:只支持字符串类型参数)" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="8">
+        <nz-form-item>
+          <nz-form-label>联系人</nz-form-label>
+          <nz-form-control>
+            <input nz-input name="taskBaseUpdate_contactsName" [(ngModel)]="taskInfoBaseUpdateParam.contactsName" placeholder="请输入联系人" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="8">
+        <nz-form-item>
+          <nz-form-label>联系电话</nz-form-label>
+          <nz-form-control>
+            <input nz-input name="taskBaseUpdate_contactsPhone"  [(ngModel)]="taskInfoBaseUpdateParam.contactsPhone" placeholder="请输入联系电话" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="8">
+        <nz-form-item>
+          <nz-form-label>联系邮箱</nz-form-label>
+          <nz-form-control>
+            <input nz-input name="taskBaseUpdate_contactsEmail"  [(ngModel)]="taskInfoBaseUpdateParam.contactsEmail" placeholder="请输入联系邮箱" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label>创建时间</nz-form-label>
+          <nz-form-control>
+            <nz-date-picker disabled name="taskBaseUpdate_createTime" [(ngModel)]="selectTaskInfo.createTime" placeholder="请输入创建时间" nzShowTime></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label>更新时间</nz-form-label>
+          <nz-form-control>
+            <nz-date-picker disabled name="taskBaseUpdate_updateTime" [(ngModel)]="selectTaskInfo.updateTime" placeholder="请输入更新时间" nzShowTime></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="24">
+        <nz-form-item>
+          <nz-form-label>最近执行</nz-form-label>
+          <nz-form-control>
+            <nz-date-picker disabled name="taskBaseUpdate_lastExecTime" [(ngModel)]="selectTaskInfo.lastExecTime" placeholder="最近一次执行时间" nzShowTime></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+    <div nz-row [nzGutter]="8">
+      <div nz-col nzSpan="8">
+        <nz-form-item>
+          <nz-form-label>执行次数</nz-form-label>
+          <nz-form-control>
+            <input nz-input disabled name="taskBaseUpdate_execNum" [(ngModel)]="selectTaskInfo.execNum" placeholder="该任务执行次数统计" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="8">
+        <nz-form-item>
+          <nz-form-label>是否可用</nz-form-label>
+          <nz-form-control>
+            <nz-switch  disabled name="taskBaseUpdate_enableFlag" [(ngModel)]="selectTaskInfo.enableFlag"></nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </form>
+
+  <ng-template #footerTpl>
+    <div style="float: right">
+      <button nz-button style="margin-right: 8px;" (click)="taskInfoDrawerClose()">取消</button>
+      <button nz-button nzType="primary" (click)="taskInfoBaseUpdate()">保存</button>
+    </div>
+  </ng-template>
+</nz-drawer>
+
+<!-- 修改执行计划 -->
+<nz-modal [(nzVisible)]="changeCronModalShowFlag" nzTitle="修改执行计划" (nzOnCancel)="changeCronModalCancel()" (nzOnOk)="changeCronModalOk()">
+  <ng-container *nzModalContent>
+    <input nz-input name="changeCronModal" placeholder="请输入Cron表达式" [(ngModel)]="changeCronStr" />
+  </ng-container>
+</nz-modal>
