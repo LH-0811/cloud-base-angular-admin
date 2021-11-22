@@ -8,6 +8,10 @@ import {YoujiTaskQueryParam} from "./entity/youji.task.query.param";
 import {YoujiTaskBaseInfoUpdateParam} from "./entity/youji.task.base.info.update.param";
 import {YoujiTaskEnableUpdateParam} from "./entity/youji.task.enable.update.param";
 import {YoujiTaskCronUpdateParam} from "./entity/youji.task.cron.update.param";
+import {YoujiTaskLog} from "./entity/youji.task.log";
+import {YoujiTaskLogQueryParam} from "./entity/youji.task.log.query.param";
+import {YoujiTaskWorkerEnableParam} from "./entity/youji.task.worker.enable.param";
+import {YoujiTaskWorker} from "./entity/youji.task.worker";
 
 @Component({
   selector: 'app-dev-tools-youji-task',
@@ -51,10 +55,14 @@ import {YoujiTaskCronUpdateParam} from "./entity/youji.task.cron.update.param";
 })
 export class DevToolsYoujiTaskComponent implements OnInit {
   /////////// URLS
-  TASK_QUERY: string = '/user-center-server/youji/task/manage/query';
-  TASK_UPDATE_CRON: string = '/user-center-server/youji/task/manage/update/cron';
-  TASK_UPDATE_ENABLE: string = '/user-center-server/youji/task/manage/update/enable';
-  TASK_UPDATE_BASE: string = '/user-center-server/youji/task/manage/update';
+  TASK_QUERY: string = '/youji-manage/youji/task/manage/query';
+  TASK_UPDATE_CRON: string = '/youji-manage/youji/task/manage/update/cron';
+  TASK_UPDATE_ENABLE: string = '/youji-manage/youji/task/manage/update/enable';
+  TASK_UPDATE_BASE: string = '/youji-manage/youji/task/manage/update';
+  TASK_EXEC_NOW: string = '/youji-manage/youji/task/manage/exec/';
+  TASK_LOG_QUERY: string = '/youji-manage/youji/task/manage/log/query';
+  TASK_WORKER_QUERY: string = '/youji-manage/youji/task/manage/work/list/';
+  TASK_WORKER_ENABLE_CHANGE: string = '/youji-manage/youji/task/manage/worker/update/enable';
 
 
   //////////////////////////////// 初始化
@@ -208,5 +216,173 @@ export class DevToolsYoujiTaskComponent implements OnInit {
 
   changeCronModalCancel() {
     this.changeCronModalShowFlag = false;
+  }
+
+
+/////////////////////////// 修改定时任务执行策略
+  execTaskNow() {
+    if (this.selectTaskInfo == null) {
+      this.notificationService.error("系统提示", "请选择一个任务操作");
+      return;
+    }
+    this.http.post(this.TASK_EXEC_NOW + this.selectTaskInfo.taskNo).subscribe(
+      res => {
+        this.notificationService.success("系统提示", res.msg);
+      }, error => {
+      }, () => {
+      }
+    );
+  }
+
+
+/////////////////////////// 查询任务执行日志数据
+  logModalShowFlag = false;
+
+  logModalCancel() {
+    this.logModalShowFlag = false;
+  }
+
+  logModalOk() {
+    this.logModalShowFlag = false;
+  }
+
+  showLogModalOk() {
+    if (this.selectTaskInfo == null) {
+      this.notificationService.error("系统提示", "请选择一个任务操作");
+      return;
+    }
+    this.logModalShowFlag = true;
+    this.searchTaskLogList();
+  }
+
+
+  selectTaskLog: YoujiTaskLog | null = null; // 当前选中的任务日志信息
+  taskLogList: YoujiTaskLog[] = []; // 任务日志列表
+  taskLogTotal = 0; // 总数
+  taskLogPageNum = 1; // 页码
+  taskLogPageSize = 15; // 每页条数
+  taskLogQueryParam: YoujiTaskLogQueryParam = new YoujiTaskLogQueryParam(); // 查询条件
+
+  // 重置查询条件
+  resetLogQuery() {
+    this.taskLogQueryParam = new YoujiTaskLogQueryParam();
+  }
+
+  // 查询任务数据
+  searchTaskLogList() {
+    if (this.selectTaskInfo == null) {
+      this.notificationService.error("系统提示", "请选择一个任务操作");
+      return;
+    }
+    this.taskLogQueryParam.taskNo = this.selectTaskInfo.taskNo;
+    this.http.post(this.TASK_LOG_QUERY, this.taskLogQueryParam).subscribe(
+      res => {
+        this.taskLogList = res.data.list;
+        this.taskLogPageSize = res.data.pageSize;
+        this.taskLogPageNum = res.data.pageNum;
+        this.taskLogTotal = res.data.total;
+        // this.taskLogList.forEach(ele => {
+        //   ele.selected = false;
+        // });
+      }
+    );
+  }
+
+  // 修改页码
+  taskLogListPageIndexChange($event: number) {
+    this.taskLogQueryParam.pageNum = $event;
+    this.searchTaskLogList();
+  }
+
+  // 修改每页条数
+  taskLogListPageSizeChange($event: number) {
+    this.taskLogQueryParam.pageSize = $event;
+    this.searchTaskLogList();
+  }
+
+  // 选择某一行数据
+  onSelectTaskLogRow(id: any, selected: boolean) {
+    // 去掉当前选择的组织
+    this.selectTaskLog = null;
+    this.taskLogList.forEach(ele => {
+      if (selected == true) {
+        if (ele.id == id) {
+          // ele.selected = true;
+          this.selectTaskLog = ele;
+        } else {
+          // ele.selected = false;
+        }
+      } else {
+        // ele.selected = false;
+      }
+    });
+    console.log(this.selectTaskLog)
+  }
+
+/////////////////////////// 查询任务工作节点
+  workerListModalShowFlag = false;
+
+  workerListModalCancel() {
+    this.workerListModalShowFlag = false;
+  }
+
+  workerListModalOk() {
+    this.workerListModalShowFlag = false;
+  }
+
+  showWorkerListModal() {
+    if (this.selectTaskInfo == null) {
+      this.notificationService.error("系统提示", "请选择一个任务操作");
+      return;
+    }
+    this.workerListModalShowFlag = true;
+    this.searchTaskWorkerList();
+  }
+
+  workerList: YoujiTaskWorker[] = []; // 工作节点列表
+  // workerListTotal = 0; // 总数
+  // workerListPageNum = 1; // 页码
+  // workerListPageSize = 15; // 每页条数
+  // 查询任务数据
+  searchTaskWorkerList() {
+    if (this.selectTaskInfo == null) {
+      this.notificationService.error("系统提示", "请选择一个任务操作");
+      return;
+    }
+    this.http.get(this.TASK_WORKER_QUERY + this.selectTaskInfo.taskNo).subscribe(
+      res => {
+        console.log(res);
+        this.workerList = res.data;
+        // this.workerListPageSize = res.data.pageSize;
+        // this.workerListPageNum = res.data.pageNum;
+        // this.workerListTotal = res.data.total;
+      }
+    );
+  }
+
+  // 修改页码
+  // workerListPageIndexChange($event: number) {
+  //   this.searchTaskLogList();
+  // }
+  //
+  // // 修改每页条数
+  // workerListPageSizeChange($event: number) {
+  //   this.searchTaskLogList();
+  // }
+
+
+  // 启用停用工作节点
+  changeWorkerEnable(workerInfo: YoujiTaskWorker) {
+    let param = new YoujiTaskWorkerEnableParam();
+    param.id = workerInfo.id;
+    param.enableFlag = !workerInfo.enableFlag;
+    this.http.post(this.TASK_WORKER_ENABLE_CHANGE, param).subscribe(
+      res => {
+        this.notificationService.success("系统提示", res.msg);
+      }, error => {
+      }, () => {
+        this.searchTaskWorkerList()
+      }
+    );
   }
 }
