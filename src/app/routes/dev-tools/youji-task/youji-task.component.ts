@@ -225,7 +225,7 @@ export class DevToolsYoujiTaskComponent implements OnInit {
       this.notificationService.error("系统提示", "请选择一个任务操作");
       return;
     }
-    this.http.post(this.TASK_EXEC_NOW + this.selectTaskInfo.taskNo).subscribe(
+    this.http.get(this.TASK_EXEC_NOW + this.selectTaskInfo.taskNo).subscribe(
       res => {
         this.notificationService.success("系统提示", res.msg);
       }, error => {
