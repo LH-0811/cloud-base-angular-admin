@@ -1,18 +1,19 @@
-import {Component, OnInit} from '@angular/core';
-import {_HttpClient} from '@delon/theme';
-import {NzNotificationService} from "ng-zorro-antd/notification";
-import {RoleInfoVo} from "../roles/entity/role.info.vo";
-import {RoleQueryParam} from "../roles/entity/role.query.param";
-import {PositionsInfoVo} from "./entity/positions.info.vo";
-import {PositionsQueryParam} from "./entity/positions.query.param";
-import {DeptCreateParam} from "../depts/entity/dept.create.param";
-import {PositionsCreateParam} from "./entity/positions.create.param";
+import { Component, OnInit } from '@angular/core';
+import { _HttpClient } from '@delon/theme';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
+
+import { DeptCreateParam } from '../depts/entity/dept.create.param';
+import { RoleInfoVo } from '../roles/entity/role.info.vo';
+import { RoleQueryParam } from '../roles/entity/role.query.param';
+import { PositionsCreateParam } from './entity/positions.create.param';
+import { PositionsInfoVo } from './entity/positions.info.vo';
+import { PositionsQueryParam } from './entity/positions.query.param';
 
 @Component({
   selector: 'app-system-positions',
   templateUrl: './positions.component.html',
   styles: [
-      `
+    `
       .ant-advanced-search-form {
         padding: 12px 12px 0px 12px;
         /*background: #fbfbfb;*/
@@ -49,22 +50,19 @@ import {PositionsCreateParam} from "./entity/positions.create.param";
   ]
 })
 export class SystemPositionsComponent implements OnInit {
-
   //////////////////////////////// URLS
   POSITIONS_QUERY = '/user-center-server/sys_positions/query';
   POSITIONS_CREATE = '/user-center-server/sys_positions/create';
   POSITIONS_DELETE = '/user-center-server/sys_positions/delete/';
   //////////////////////////////// 初始化
   // 构造方法注入组件
-  constructor(private http: _HttpClient, private notificationService: NzNotificationService) {
-  }
+  constructor(private http: _HttpClient, private notificationService: NzNotificationService) {}
 
   // 初始化方法
   ngOnInit(): void {
     // 查询岗位列表
     this.searchPositionsList();
   }
-
 
   /////////////////////////// 查询岗位数据
   selectPositionsInfo: PositionsInfoVo | null = null; // 当前选中的岗位信息
@@ -81,17 +79,15 @@ export class SystemPositionsComponent implements OnInit {
 
   // 查询岗位数据
   searchPositionsList() {
-    this.http.post(this.POSITIONS_QUERY, this.positionsQueryParam).subscribe(
-      res => {
-        this.positionsInfoList = res.data.list;
-        this.positionsInfoPageSize = res.data.pageSize;
-        this.positionsInfoPageNum = res.data.pageNum;
-        this.positionsInfoTotal = res.data.total;
-        this.positionsInfoList.forEach(ele => {
-          ele.selected = false;
-        });
-      }
-    );
+    this.http.post(this.POSITIONS_QUERY, this.positionsQueryParam).subscribe(res => {
+      this.positionsInfoList = res.data.list;
+      this.positionsInfoPageSize = res.data.pageSize;
+      this.positionsInfoPageNum = res.data.pageNum;
+      this.positionsInfoTotal = res.data.total;
+      this.positionsInfoList.forEach(ele => {
+        ele.selected = false;
+      });
+    });
   }
 
   // 修改页码
@@ -122,9 +118,8 @@ export class SystemPositionsComponent implements OnInit {
         ele.selected = false;
       }
     });
-    console.log(this.selectPositionsInfo)
+    console.log(this.selectPositionsInfo);
   }
-
 
   /////////////////////////// 创建岗位数据
   positionsSaveParam: PositionsCreateParam | null = null; // 保存岗位参数
@@ -146,18 +141,16 @@ export class SystemPositionsComponent implements OnInit {
     this.positionsSaveLoading = true;
     this.http.post(this.POSITIONS_CREATE, this.positionsSaveParam).subscribe(
       res => {
-        this.notificationService.success("系统提示", res.msg);
+        this.notificationService.success('系统提示', res.msg);
         this.searchPositionsList();
         this.positionsSaveParam = null;
       },
-      error => {
-      },
+      error => {},
       () => {
         this.positionsSaveLoading = false;
         this.positionsSaveModalShowFlag = false;
       }
-    )
-
+    );
   }
 
   // 取消保存框
@@ -169,17 +162,13 @@ export class SystemPositionsComponent implements OnInit {
   /////////////////////////// 删除岗位数据
   confirmPositionsDel() {
     if (this.selectPositionsInfo == null) {
-      this.notificationService.error("系统提示", "请选择岗位进行操作");
+      this.notificationService.error('系统提示', '请选择岗位进行操作');
       return;
     }
-    this.http.delete(this.POSITIONS_DELETE + this.selectPositionsInfo.id)
-      .subscribe(
-        res => {
-          this.notificationService.success("系统提示", "删除成功");
-          this.searchPositionsList();
-          this.selectPositionsInfo = null;
-        }
-      )
+    this.http.delete(this.POSITIONS_DELETE + this.selectPositionsInfo.id).subscribe(res => {
+      this.notificationService.success('系统提示', '删除成功');
+      this.searchPositionsList();
+      this.selectPositionsInfo = null;
+    });
   }
-
 }

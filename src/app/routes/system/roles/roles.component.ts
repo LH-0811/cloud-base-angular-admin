@@ -1,18 +1,19 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {_HttpClient} from '@delon/theme';
-import {UserInfoVo} from "../users/entity/user.info.vo";
-import {UserQueryParam} from "../users/entity/user.query.param";
-import {NzNotificationService} from "ng-zorro-antd/notification";
-import {RoleInfoVo} from "./entity/role.info.vo";
-import {RoleQueryParam} from "./entity/role.query.param";
-import {UserSaveParam} from "../users/entity/user.save.param";
-import {RoleSaveParam} from "./entity/role.save.param";
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { _HttpClient } from '@delon/theme';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
+
+import { UserInfoVo } from '../users/entity/user.info.vo';
+import { UserQueryParam } from '../users/entity/user.query.param';
+import { UserSaveParam } from '../users/entity/user.save.param';
+import { RoleInfoVo } from './entity/role.info.vo';
+import { RoleQueryParam } from './entity/role.query.param';
+import { RoleSaveParam } from './entity/role.save.param';
 
 @Component({
   selector: 'app-system-roles',
   templateUrl: './roles.component.html',
   styles: [
-      `
+    `
       .ant-advanced-search-form {
         padding: 12px 12px 0px 12px;
         /*background: #fbfbfb;*/
@@ -49,39 +50,33 @@ import {RoleSaveParam} from "./entity/role.save.param";
   ]
 })
 export class SystemRolesComponent implements OnInit {
-
   /////////// URLS
-  ROLE_QUERY:string = '/user-center-server/sys_role/query';
-  ROLE_CREATE:string = '/user-center-server/sys_role/create';
-  ROLE_UPDATE:string = '/user-center-server/sys_role/update';
-  ROLE_DELETE:string = '/user-center-server/sys_role/delete/';
-  RES_TREE:string = '/user-center-server/sys_res/tree';
+  ROLE_QUERY: string = '/user-center-server/sys_role/query';
+  ROLE_CREATE: string = '/user-center-server/sys_role/create';
+  ROLE_UPDATE: string = '/user-center-server/sys_role/update';
+  ROLE_DELETE: string = '/user-center-server/sys_role/delete/';
+  RES_TREE: string = '/user-center-server/sys_res/tree';
 
   //////////////////////////////// 初始化
   // 构造方法注入组件
-  constructor(private http: _HttpClient, private notificationService: NzNotificationService) {
-  }
+  constructor(private http: _HttpClient, private notificationService: NzNotificationService) {}
 
   // 初始化方法
   ngOnInit(): void {
-
     // 获取角色数据列表
     this.searchRoleList();
 
     // 获取全部的资源树
     this.getAllResTree();
-
   }
 
   /////////////////////////// 公共数据
   allResTree = []; // 全部的资源树数据
   getAllResTree() {
-    console.log(this.roleQueryParam)
-    this.http.get(this.RES_TREE, this.roleQueryParam).subscribe(
-      res => {
-        this.allResTree = res.data;
-      }
-    );
+    console.log(this.roleQueryParam);
+    this.http.get(this.RES_TREE, this.roleQueryParam).subscribe(res => {
+      this.allResTree = res.data;
+    });
   }
 
   allResTreeClick($event: any) {
@@ -103,18 +98,16 @@ export class SystemRolesComponent implements OnInit {
 
   // 查询角色数据
   searchRoleList() {
-    console.log(this.roleQueryParam)
-    this.http.post(this.ROLE_QUERY, this.roleQueryParam).subscribe(
-      res => {
-        this.roleInfoList = res.data.list;
-        this.roleInfoPageSize = res.data.pageSize;
-        this.roleInfoPageNum = res.data.pageNum;
-        this.roleInfoTotal = res.data.total;
-        this.roleInfoList.forEach(ele => {
-          ele.selected = false;
-        });
-      }
-    );
+    console.log(this.roleQueryParam);
+    this.http.post(this.ROLE_QUERY, this.roleQueryParam).subscribe(res => {
+      this.roleInfoList = res.data.list;
+      this.roleInfoPageSize = res.data.pageSize;
+      this.roleInfoPageNum = res.data.pageNum;
+      this.roleInfoTotal = res.data.total;
+      this.roleInfoList.forEach(ele => {
+        ele.selected = false;
+      });
+    });
   }
 
   // 修改页码
@@ -145,21 +138,21 @@ export class SystemRolesComponent implements OnInit {
         ele.selected = false;
       }
     });
-    console.log(this.selectRoleInfo)
+    console.log(this.selectRoleInfo);
   }
 
   /////////////////////////// 新增角色数据
   roleSaveParam: RoleSaveParam | null = null; // 保存用户参数
   roleSaveModalShowFlag = false; // 是否显示用户创建模态框
   roleSaveLoading = false; // 是否正在保存用户信息
-  @ViewChild("roleSaveTree")
+  @ViewChild('roleSaveTree')
   roleSaveTree: any;
   // 显示模态框方法
 
   // 以创建用户的方式打开编辑用户信息模态框
   roleSaveShowModal(): void {
     // 打开创建视图之前先初始化一个保存参数实体类
-    if (this.roleSaveParam == null || (this.roleSaveParam.id != null || this.roleSaveParam.id != undefined)) {
+    if (this.roleSaveParam == null || this.roleSaveParam.id != null || this.roleSaveParam.id != undefined) {
       this.roleSaveParam = new RoleSaveParam();
       this.roleSaveParam.sysResTree = JSON.parse(JSON.stringify(this.allResTree));
     }
@@ -186,13 +179,13 @@ export class SystemRolesComponent implements OnInit {
 
   // 执行保存方法
   roleSaveHandleSave(): void {
-    console.log(this.roleSaveTree)
-    console.log(this.roleSaveTree.getCheckedNodeList())
-    console.log(this.roleSaveTree.getHalfCheckedNodeList())
+    console.log(this.roleSaveTree);
+    console.log(this.roleSaveTree.getCheckedNodeList());
+    console.log(this.roleSaveTree.getHalfCheckedNodeList());
 
     let checkedResIdListWhenRoleSave = this.getCheckedResIdListWhenRoleSave();
-    let resIdList = checkedResIdListWhenRoleSave.map((ele) => ele['key']);
-    console.log("resIdList", resIdList);
+    let resIdList = checkedResIdListWhenRoleSave.map(ele => ele['key']);
+    console.log('resIdList', resIdList);
     this.roleSaveLoading = true;
     if (this.roleSaveParam == null) {
       this.notificationService.error('系统提示', '保存信息尚未初始化');
@@ -205,19 +198,17 @@ export class SystemRolesComponent implements OnInit {
     this.roleSaveParam.resIdList = resIdList;
     this.http.post(saveUrl, this.roleSaveParam).subscribe(
       res => {
-        this.notificationService.success("系统提示", res.msg);
+        this.notificationService.success('系统提示', res.msg);
         this.roleSaveParam = null;
         this.selectRoleInfo = null;
         this.searchRoleList();
       },
-      error => {
-      },
+      error => {},
       () => {
         this.roleSaveLoading = false;
         this.roleSaveModalShowFlag = false;
       }
-    )
-
+    );
   }
 
   // 取消保存框
@@ -237,7 +228,7 @@ export class SystemRolesComponent implements OnInit {
     allCheckNode = allCheckNode.concat(checkedNodeList, halfCheckedNodeList);
 
     let resultList = this.getCheckOrHalfChekNodeList(allCheckNode, []);
-    console.log(resultList)
+    console.log(resultList);
     return resultList;
   }
 
@@ -245,7 +236,7 @@ export class SystemRolesComponent implements OnInit {
     for (let node of nodeList) {
       if (node['isChecked'] || node['isHalfChecked']) {
         var resIdList = resultList.map((ele: any) => {
-          return ele['key']
+          return ele['key'];
         });
         if (resIdList.indexOf(node['key']) == -1) {
           resultList.push(node);
@@ -263,15 +254,15 @@ export class SystemRolesComponent implements OnInit {
       return;
     }
     var allNodes = this.roleSaveTree.getTreeNodes();
-    console.log("allNodes:", allNodes)
-    console.log("this.roleSaveParam.sysResList", this.roleSaveParam.sysResList)
+    console.log('allNodes:', allNodes);
+    console.log('this.roleSaveParam.sysResList', this.roleSaveParam.sysResList);
     let checkIdList: [] = [];
     for (let element of this.roleSaveParam.sysResList) {
       // @ts-ignore
-      checkIdList.push(element.id)
+      checkIdList.push(element.id);
     }
-    console.log("this.roleSaveParam.sysResIdList", checkIdList)
-    this.setChecked(checkIdList, allNodes)
+    console.log('this.roleSaveParam.sysResIdList', checkIdList);
+    this.setChecked(checkIdList, allNodes);
   }
 
   setChecked(checkedKeys: [], nodeList: any[]) {
@@ -287,18 +278,16 @@ export class SystemRolesComponent implements OnInit {
     }
   }
 
-
   /////////////////////////// 删除角色数据
   confirmRoleDel() {
     if (this.selectRoleInfo == null) {
-      this.notificationService.error("系统提示", "请选择角色进行操作!");
+      this.notificationService.error('系统提示', '请选择角色进行操作!');
       return;
     }
-    this.http.delete(this.ROLE_DELETE + this.selectRoleInfo.id)
-      .subscribe(res => {
-          this.notificationService.success("系统提示", res.msg);
-          this.searchRoleList();
-          this.selectRoleInfo = null;
-        })
+    this.http.delete(this.ROLE_DELETE + this.selectRoleInfo.id).subscribe(res => {
+      this.notificationService.success('系统提示', res.msg);
+      this.searchRoleList();
+      this.selectRoleInfo = null;
+    });
   }
 }

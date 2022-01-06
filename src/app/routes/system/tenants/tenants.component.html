@@ -1,0 +1,289 @@
+<page-header></page-header>
+<div nz-row>
+  <div nz-col nzSpan="24">
+    <nz-card style="width: 100%">
+      <div class="ant-advanced-search-form">
+        <div nz-row [nzGutter]="24">
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label>租户名称</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="tenantQueryParam.tenantName" placeholder="租户名称" name="tenantQueryParam_tenantName" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col [nzSpan]="8">
+            <nz-form-item>
+              <nz-form-label>租户编号</nz-form-label>
+              <nz-form-control>
+                <input nz-input [(ngModel)]="tenantQueryParam.tenantNo" placeholder="租户编号" name="tenantQueryParam_tenantNo" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+        <div nz-row style="margin-bottom: 4px">
+          <div nz-col [nzSpan]="18" style="text-align: left">
+            <button nz-button [nzType]="'primary'" (click)="tenantSaveShowModal()">新增</button>
+            <button nz-button [nzType]="'primary'" (click)="tenantUpdateShowModal()">修改</button>
+            <button
+              nz-button
+              nzDanger
+              [nzType]="'dashed'"
+              [disabled]="selectTenantInfo == null"
+              nz-popconfirm
+              nzPopconfirmTitle="确定要删除岗位吗?"
+              nzPopconfirmPlacement="top"
+              (nzOnConfirm)="confirmTenantDel()"
+              >删除
+            </button>
+          </div>
+
+          <div nz-col [nzSpan]="6" style="text-align: right">
+            <button nz-button [nzType]="'primary'" (click)="searchList()">查询</button>
+            <button nz-button (click)="resetQuery()">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="search-result-list">
+        <ng-template #totalTemplate let-total> 共{{ tenantInfoTotal }}条</ng-template>
+        <nz-table
+          #tenantInfoTable
+          nzShowPagination
+          nzShowSizeChanger
+          [nzFrontPagination]="false"
+          [nzShowTotal]="totalTemplate"
+          [nzData]="tenantInfoList"
+          [nzTotal]="tenantInfoTotal"
+          [(nzPageIndex)]="tenantInfoPageNum"
+          [(nzPageSize)]="tenantInfoPageSize"
+          (nzPageIndexChange)="tenantInfoListPageIndexChange($event)"
+          (nzPageSizeChange)="tenantInfoListPageSizeChange($event)"
+        >
+          <thead>
+            <tr>
+              <th>选中</th>
+              <th>租户名称</th>
+              <th>租户编码</th>
+              <th>备注</th>
+              <th>创建时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr (click)="onSelectTenantInfoRow(data.id, !data.selected)" *ngFor="let data of tenantInfoTable.data">
+              <td
+                nzLeft
+                [nzShowCheckbox]="true"
+                [(nzChecked)]="data.selected"
+                (nzCheckedChange)="onSelectTenantInfoRow(data.id, $event)"
+              ></td>
+              <td>{{ data.tenantName }}</td>
+              <td>{{ data.tenantNo }}</td>
+              <td>{{ data.remark }}</td>
+              <td>{{ data.createTime | date: 'yyyy-MM-dd HH:mm' }}</td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </div>
+    </nz-card>
+  </div>
+</div>
+
+<!-- 新增租户 -->
+<nz-modal
+  [(nzVisible)]="tenantSaveModalShowFlag"
+  nzTitle="新增租户"
+  [nzContent]="tenantSaveContent"
+  [nzFooter]="tenantSaveFooter"
+  (nzOnCancel)="tenantSaveHandleCancel()"
+>
+  <ng-template #tenantSaveContent>
+    <form nz-form *ngIf="tenantSaveParam != null">
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">租户名称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantSaveParam.tenantName" name="tenantSaveParam_tenantName" placeholder="输入租户名称" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">租户简称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input
+            nz-input
+            [(ngModel)]="tenantSaveParam.tenantSimpleName"
+            name="tenantSaveParam_tenantSimpleName"
+            placeholder="输入租户名称"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">租户英文名称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input
+            nz-input
+            [(ngModel)]="tenantSaveParam.tenantEnglishName"
+            name="tenantSaveParam_tenantEnglishName"
+            placeholder="租户英文名称"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">租户英文简称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input
+            nz-input
+            [(ngModel)]="tenantSaveParam.tenantEnglishSimpleName"
+            name="tenantSaveParam_tenantEnglishSimpleName"
+            placeholder="租户英文简称"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">联系人</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantSaveParam.contactsName" name="tenantSaveParam_contactsName" placeholder="联系人" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">联系人电话</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantSaveParam.contactsPhone" name="tenantSaveParam_contactsPhone" placeholder="联系人电话" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">联系人邮箱</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantSaveParam.contactsEmail" name="tenantSaveParam_contactsEmail" placeholder="联系人邮箱" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">是否启用</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <nz-select name="tenantSaveParam_activeFlag" [(ngModel)]="tenantSaveParam.activeFlag">
+            <nz-option [nzValue]="true" [nzLabel]="'启用'"></nz-option>
+            <nz-option [nzValue]="false" [nzLabel]="'禁用'"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">备注</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantSaveParam.remark" name="tenantSaveParam_remark" placeholder="备注" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+
+  <ng-template #tenantSaveFooter>
+    <button nz-button nzType="default" (click)="tenantSaveHandleCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="tenantSaveHandleSave()" [nzLoading]="tenantSaveLoading">保存</button>
+  </ng-template>
+</nz-modal>
+
+<!-- 修改租户 -->
+<nz-modal
+  [(nzVisible)]="tenantUpdateModalShowFlag"
+  nzTitle="修改租户"
+  [nzContent]="tenantUpdateContent"
+  [nzFooter]="tenantUpdateFooter"
+  (nzOnCancel)="tenantUpdateHandleCancel()"
+>
+  <ng-template #tenantUpdateContent>
+    <form nz-form *ngIf="tenantUpdateParam != null">
+      <input nz-input [hidden]="true" [(ngModel)]="tenantUpdateParam.id" name="tenantUpdateParam_id" />
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">租户名称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantUpdateParam.tenantName" name="tenantUpdateParam_tenantName" placeholder="输入租户名称" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">租户简称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input
+            nz-input
+            [(ngModel)]="tenantUpdateParam.tenantSimpleName"
+            name="tenantUpdateParam_tenantSimpleName"
+            placeholder="输入岗位名称"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">租户英文名称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input
+            nz-input
+            [(ngModel)]="tenantUpdateParam.tenantEnglishName"
+            name="tenantUpdateParam_tenantEnglishName"
+            placeholder="租户英文名称"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">租户英文简称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input
+            nz-input
+            [(ngModel)]="tenantUpdateParam.tenantEnglishSimpleName"
+            name="tenantUpdateParam_tenantEnglishSimpleName"
+            placeholder="租户英文简称"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">联系人</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantUpdateParam.contactsName" name="tenantUpdateParam_contactsName" placeholder="联系人" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">联系人电话</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantUpdateParam.contactsPhone" name="tenantUpdateParam_contactsPhone" placeholder="联系人电话" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">联系人邮箱</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantUpdateParam.contactsEmail" name="tenantUpdateParam_contactsEmail" placeholder="联系人邮箱" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">是否启用</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <nz-select name="tenantUpdateParam_activeFlag" [(ngModel)]="tenantUpdateParam.activeFlag">
+            <nz-option [nzValue]="true" [nzLabel]="'启用'"></nz-option>
+            <nz-option [nzValue]="false" [nzLabel]="'禁用'"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">备注</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="tenantUpdateParam.remark" name="tenantUpdateParam_remark" placeholder="备注" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+
+  <ng-template #tenantUpdateFooter>
+    <button nz-button nzType="default" (click)="tenantUpdateHandleCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="tenantUpdateHandle()" [nzLoading]="tenantUpdateLoading">保存</button>
+  </ng-template>
+</nz-modal>

@@ -6,13 +6,15 @@ import { SystemRolesComponent } from './roles/roles.component';
 import { SystemResourcesComponent } from './resources/resources.component';
 import { SystemDeptsComponent } from './depts/depts.component';
 import { SystemPositionsComponent } from './positions/positions.component';
+import { SystemTenantsComponent } from './tenants/tenants.component';
 
 const COMPONENTS: Type<void>[] = [
   SystemUsersComponent,
   SystemRolesComponent,
   SystemResourcesComponent,
   SystemDeptsComponent,
-  SystemPositionsComponent];
+  SystemPositionsComponent,
+  SystemTenantsComponent];
 
 @NgModule({
   imports: [

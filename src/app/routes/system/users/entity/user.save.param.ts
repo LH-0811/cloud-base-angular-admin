@@ -1,9 +1,8 @@
 export class UserSaveParam {
-
   /**
    * 用户id
    */
-  userId:any;
+  userId: any;
 
   /**
    * 昵称
@@ -30,7 +29,6 @@ export class UserSaveParam {
    */
   username: any;
 
-
   /**
    * 性别 0-保密 1-男 2-女
    */
@@ -50,6 +48,4 @@ export class UserSaveParam {
    * 是否可用
    */
   activeFlag: any = true;
-
-
 }

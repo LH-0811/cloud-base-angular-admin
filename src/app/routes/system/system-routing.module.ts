@@ -5,6 +5,7 @@ import { SystemRolesComponent } from './roles/roles.component';
 import { SystemResourcesComponent } from './resources/resources.component';
 import { SystemDeptsComponent } from './depts/depts.component';
 import { SystemPositionsComponent } from './positions/positions.component';
+import { SystemTenantsComponent } from './tenants/tenants.component';
 
 const routes: Routes = [
 
@@ -12,7 +13,8 @@ const routes: Routes = [
   { path: 'roles', component: SystemRolesComponent },
   { path: 'resources', component: SystemResourcesComponent },
   { path: 'depts', component: SystemDeptsComponent },
-  { path: 'positions', component: SystemPositionsComponent }];
+  { path: 'positions', component: SystemPositionsComponent },
+  { path: 'tenants', component: SystemTenantsComponent }];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
