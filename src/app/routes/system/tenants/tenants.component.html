@@ -26,6 +26,7 @@
           <div nz-col [nzSpan]="18" style="text-align: left">
             <button nz-button [nzType]="'primary'" (click)="tenantSaveShowModal()">新增</button>
             <button nz-button [nzType]="'primary'" (click)="tenantUpdateShowModal()">修改</button>
+            <button nz-button [disabled]="selectTenantInfo == null" [nzType]="'primary'" (click)="getTenantMgrUserShowModal()">获取组合管理员</button>
             <button
               nz-button
               nzDanger
@@ -285,5 +286,73 @@
   <ng-template #tenantUpdateFooter>
     <button nz-button nzType="default" (click)="tenantUpdateHandleCancel()">取消</button>
     <button nz-button nzType="primary" (click)="tenantUpdateHandle()" [nzLoading]="tenantUpdateLoading">保存</button>
+  </ng-template>
+</nz-modal>
+
+<!-- 查询租户管理员信息 -->
+<nz-modal
+  [(nzVisible)]="tenantMgrShowModalShowFlag"
+  nzTitle="租户管理员信息"
+  [nzContent]="tenantMgrInfoContent"
+  [nzFooter]="tenantMgrInfoFooter"
+  (nzOnCancel)="tenantMgrInfoHandleCancel()"
+>
+  <ng-template #tenantMgrInfoContent>
+    <form nz-form *ngIf="mgrUser != null">
+      <input nz-input [hidden]="true" [(ngModel)]="mgrUser.userId" name="mgrUser_userId" />
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">用户名</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="mgrUser.username" name="mgrUser_username" placeholder="输入用户名" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">用户简称</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="mgrUser.nickName" name="mgrUser_nickName" placeholder="输入昵称" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">联系电话</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="mgrUser.phone" name="mgrUser_phone" placeholder="联系电话" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">联系邮箱</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <input nz-input [(ngModel)]="mgrUser.email" name="mgrUser_email" placeholder="邮箱" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="7">是否启用</nz-form-label>
+        <nz-form-control [nzSpan]="12">
+          <nz-select name="mgrUser_activeFlag" [(ngModel)]="mgrUser.activeFlag">
+            <nz-option [nzValue]="true" [nzLabel]="'启用'"></nz-option>
+            <nz-option [nzValue]="false" [nzLabel]="'禁用'"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+
+  <ng-template #tenantMgrInfoFooter>
+    <button nz-button nzType="default" (click)="tenantMgrInfoHandleCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="tenantMgrUserUpdateHandle()" [nzLoading]="tenantUpdateLoading">保存</button>
+    <button
+      nz-button
+      nzDanger
+      [nzType]="'dashed'"
+      [disabled]="selectTenantInfo == null"
+      nz-popconfirm
+      nzPopconfirmTitle="确定要重置密码吗?"
+      nzPopconfirmPlacement="top"
+      (nzOnConfirm)="resetPwd()"
+      >重置密码
+    </button>
   </ng-template>
 </nz-modal>

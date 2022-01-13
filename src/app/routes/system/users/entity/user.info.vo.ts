@@ -1,5 +1,4 @@
 export class UserInfoVo {
-
   /**
    * 部门id
    */
@@ -56,7 +55,6 @@ export class UserInfoVo {
    */
   roleIdList: any;
 
-
   /**
    * 最后登录时间
    */
@@ -73,5 +71,4 @@ export class UserInfoVo {
   updateTime: any;
 
   selected: any;
-
 }

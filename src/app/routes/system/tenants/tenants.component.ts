@@ -5,6 +5,7 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { PositionsCreateParam } from '../positions/entity/positions.create.param';
 import { PositionsInfoVo } from '../positions/entity/positions.info.vo';
 import { PositionsQueryParam } from '../positions/entity/positions.query.param';
+import { UserInfoVo } from '../users/entity/user.info.vo';
 import { TenantInfo } from './entity/tenant.info';
 import { TenantInfoCreateParam } from './entity/tenant.info.create.param';
 import { TenantInfoQueryParam } from './entity/tenant.info.query.param';
@@ -56,6 +57,9 @@ export class SystemTenantsComponent implements OnInit {
   TENANT_CREATE: string = '/user-center-server/sys_tenant/create';
   TENANT_UPDATE: string = '/user-center-server/sys_tenant/update';
   TENANT_DELETE: string = '/user-center-server/sys_tenant/delete/';
+  TENANT_ADMIN_MGR_GET: string = '/user-center-server/sys_tenant/get_mgr_user/';
+  TENANT_ADMIN_MGR_UPDATE: string = '/user-center-server/sys_tenant/mgr_user/update';
+  TENANT_ADMIN_MGR_CHANGE_PWD: string = '/user-center-server/sys_tenant/mgr_user/reset_pwd';
 
   //////////////////////////////// 初始化
   // 构造方法注入组件
@@ -207,5 +211,55 @@ export class SystemTenantsComponent implements OnInit {
   tenantUpdateHandleCancel(): void {
     // 取消视图显示
     this.tenantUpdateModalShowFlag = false;
+  }
+
+  /////////////////////////// 获取租户管理员
+  mgrUser: UserInfoVo | null = null;
+  tenantMgrShowModalShowFlag = false; // 是否显示创建模态框
+
+  getTenantMgrUserShowModal(): void {
+    if (this.selectTenantInfo == null) {
+      this.notificationService.error('系统提示', '请选择一个信息操作');
+      return;
+    }
+
+    this.http.get(this.TENANT_ADMIN_MGR_GET + this.selectTenantInfo.id).subscribe(res => {
+      this.mgrUser = res.data;
+      this.tenantMgrShowModalShowFlag = true;
+    });
+  }
+
+  tenantMgrInfoHandleCancel(): void {
+    // 取消视图显示
+    this.tenantMgrShowModalShowFlag = false;
+    this.mgrUser = null;
+  }
+
+  resetPwd(): void {
+    if (this.mgrUser == null) {
+      this.notificationService.error('系统提示', '未获取到当前用户信息');
+      return;
+    }
+    this.http.post(this.TENANT_ADMIN_MGR_CHANGE_PWD, { userId: this.mgrUser.userId }).subscribe(res => {
+      this.notificationService.success('系统提示', res.msg);
+    });
+  }
+
+  // 执行保存方法
+  tenantMgrUserUpdateHandle(): void {
+    if (this.mgrUser == null) {
+      this.notificationService.error('系统提示', '为获取到租户管理员信息');
+      return;
+    }
+
+    this.http.post(this.TENANT_ADMIN_MGR_UPDATE, this.mgrUser).subscribe(
+      res => {
+        this.notificationService.success('系统提示', res.msg);
+      },
+      error => {},
+      () => {
+        this.tenantMgrInfoHandleCancel();
+      }
+    );
   }
 }
